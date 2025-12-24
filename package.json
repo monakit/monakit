@@ -1,7 +1,7 @@
 {
   "name": "monakit",
   "type": "module",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "files": [
     "src",
     "astro.config.mjs",
@@ -37,12 +37,14 @@
     "astro-social-share": "^2.2.0",
     "clsx": "^2.1.1",
     "js-base64": "^3.7.8",
+    "katex": "^0.16.27",
     "lucide-react": "^0.544.0",
     "pagefind": "^1.4.0",
     "pako": "^2.1.0",
     "react": "^19.1.1",
     "rehype-sanitize": "^6.0.0",
     "reveal.js": "^5.2.1",
+    "reveal.js-mermaid-plugin": "^11.6.0",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.3.1"
   },

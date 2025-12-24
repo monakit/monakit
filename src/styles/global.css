@@ -540,3 +540,17 @@ pre.mermaid {
 .flip-card-inner.flipped {
   transform: rotateY(180deg);
 }
+
+.reveal .mermaid.hljs {
+  background: oklch(97% 0.014 254.604);
+}
+
+.reveal table {
+  width: 100%;
+  font-size: 20px;
+}
+
+.reveal .mermaid.hljs svg {
+  margin-left: auto;
+  margin-right: auto;
+}
