@@ -8,6 +8,7 @@ import {
 // Import reveal.js CSS
 import "reveal.js/dist/reveal.css";
 import "reveal.js/plugin/highlight/monokai.css";
+import "katex/dist/katex.min.css";
 
 interface SlideViewerProps {
   content: string;
@@ -125,6 +126,12 @@ export const SlideViewer: React.FC<SlideViewerProps> = ({
         const { default: Notes } = await import(
           "reveal.js/plugin/notes/notes.esm.js"
         );
+        const { default: RevealMermaid } = await import(
+          "reveal.js-mermaid-plugin"
+        );
+        const { default: RevealMath } = await import(
+          "reveal.js/plugin/math/math.esm.js"
+        );
 
         // Create HTML structure for reveal.js
         const backgroundAttrs = preview ? getThemeBackgroundAttrs(theme) : "";
@@ -153,7 +160,13 @@ export const SlideViewer: React.FC<SlideViewerProps> = ({
               | "convex"
               | "concave"
               | "zoom",
-            plugins: [RevealMarkdown, Highlight, Notes],
+            plugins: [
+              RevealMarkdown,
+              Highlight,
+              Notes,
+              RevealMermaid,
+              RevealMath.KaTeX,
+            ],
             markdown: { smartypants: true },
             embedded: true,
             width: "100%",
