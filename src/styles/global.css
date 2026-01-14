@@ -545,6 +545,11 @@ pre.mermaid {
   background: oklch(97% 0.014 254.604);
 }
 
+.reveal .mermaid.hljs svg {
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .reveal table {
   width: 100%;
   font-size: 20px;
