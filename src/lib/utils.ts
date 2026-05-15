@@ -7,6 +7,24 @@ import {
   KNOWLEDGE_CARD_THEME,
 } from "@/themes/knowledge-card-themes";
 
+const CATEGORY_GRADIENTS = [
+  "from-emerald-100 to-emerald-200",
+  "from-amber-100 to-amber-200",
+  "from-blue-100 to-blue-200",
+  "from-pink-100 to-pink-200",
+  "from-purple-100 to-purple-200",
+  "from-teal-100 to-teal-200",
+  "from-orange-100 to-orange-200",
+  "from-cyan-100 to-cyan-200",
+  "from-lime-100 to-lime-200",
+  "from-gray-100 to-gray-200",
+];
+
+export function getCategoryColor(id: string): string {
+  const sum = id.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  return CATEGORY_GRADIENTS[sum % CATEGORY_GRADIENTS.length];
+}
+
 export const TEMPLATE_KEY_MAP: Record<string, string> = {
   blackwhite: "blackWhite",
   vintage: "vintage",

@@ -102,6 +102,13 @@ export const MENU_ITEMS: MenuItem[] = [
     description: "Interactive presentations crafted for developers.",
   },
   {
+    id: "courses",
+    label: "Courses",
+    href: "/courses",
+    title: "Courses",
+    description: "Learn step-by-step with our structured courses.",
+  },
+  {
     id: "open-source",
     label: "GitHub",
     href: "https://github.com/monakit/monakit",

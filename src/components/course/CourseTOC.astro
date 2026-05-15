@@ -1,0 +1,77 @@
+---
+import { getStructuredTOC } from "@/lib/course";
+import type { StructureItemType } from "@/schemas/course";
+
+interface Props {
+  courseId: string;
+  structure: StructureItemType[];
+  currentSlug?: string;
+}
+
+const { courseId, structure, currentSlug } = Astro.props;
+
+const toc = getStructuredTOC(structure);
+---
+
+<nav class="space-y-4">
+  {
+    toc.map((item) => {
+      if (item.type === "part" && item.chapters) {
+        return (
+          <div class="space-y-2">
+            <h4 class="text-sm font-semibold text-slate-400 uppercase tracking-wider">
+              {item.title}
+            </h4>
+            <ul class="space-y-1 pl-2 border-l border-slate-700">
+              {item.chapters.map((chapter) => {
+                const isActive = chapter.slug === currentSlug;
+                return (
+                  <li>
+                    <a
+                      href={`/courses/${courseId}/${chapter.slug}`}
+                      class:list={[
+                        "flex items-center gap-2 px-3 py-2 text-sm rounded-r transition-colors",
+                        isActive
+                          ? "bg-emerald-500/20 text-emerald-400 border-l-2 border-emerald-500 -ml-0.5"
+                          : "text-slate-300 hover:bg-slate-800 hover:text-white",
+                      ]}
+                    >
+                      <span class="flex-1 truncate">{chapter.title}</span>
+                      {chapter.free && (
+                        <span class="text-xs px-1.5 py-0.5 bg-emerald-500/20 text-emerald-400 rounded">
+                          FREE
+                        </span>
+                      )}
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        );
+      } else if (item.type === "chapter" && item.chapter) {
+        const chapter = item.chapter;
+        const isActive = chapter.slug === currentSlug;
+        return (
+          <a
+            href={`/courses/${courseId}/${chapter.slug}`}
+            class:list={[
+              "flex items-center gap-2 px-3 py-2 text-sm rounded transition-colors",
+              isActive
+                ? "bg-emerald-500/20 text-emerald-400"
+                : "text-slate-300 hover:bg-slate-800 hover:text-white",
+            ]}
+          >
+            <span class="flex-1 truncate">{chapter.title}</span>
+            {chapter.free && (
+              <span class="text-xs px-1.5 py-0.5 bg-emerald-500/20 text-emerald-400 rounded">
+                FREE
+              </span>
+            )}
+          </a>
+        );
+      }
+      return null;
+    })
+  }
+</nav>

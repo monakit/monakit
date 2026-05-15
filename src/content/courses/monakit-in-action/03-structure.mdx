@@ -1,0 +1,22 @@
+---
+title: "How MonaKit Is Structured"
+description: "A look at MonaKit's architecture — content pipeline, key directories, and how courses are composed."
+---
+
+MonaKit follows a straightforward content pipeline: Markdown files in `src/content/` are loaded by Astro's Content Collections, rendered by SSR pages, and indexed for search.
+
+Here is an overview of the architecture as a slide:
+
+<Slide id="architecture" />
+
+The diagram above is a **slide resource** — a standalone reveal.js deck stored under `courses/<id>/slides/` and embedded into this chapter via `<Slide id="architecture" />`. It does not appear as a standalone entry in the course TOC.
+
+## When to use each approach
+
+| Situation | Use |
+|-----------|-----|
+| Chapter is entirely visual | Slide chapter (`theme:` in frontmatter) |
+| Slides supplement prose | Embedded slide resource (`<Slide />` in `.mdx`) |
+| Slides reused across chapters | Embedded slide resource |
+
+For the full architecture deep-dive, see [MonaKit in Action](https://www.mymona.xyz/courses/monakit-in-action) on mymona.xyz.

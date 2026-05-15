@@ -1,0 +1,94 @@
+---
+import { getChapterCount } from "@/lib/course";
+import { formatDate, getCategoryColor } from "@/lib/utils";
+import type { StructureItemType } from "@/schemas/course";
+
+export interface CourseCardProps {
+  id: string;
+  title: string;
+  description: string;
+  author?: string;
+  pubDate: Date;
+  cover?: string;
+  tags?: string[];
+  structure: StructureItemType[];
+}
+
+interface Props {
+  course: CourseCardProps;
+}
+
+const { course } = Astro.props;
+const courseSlug = course.id.replace(/\/toc$/, "");
+const chapterCount = getChapterCount(course.structure);
+---
+
+<div
+  class="relative overflow-hidden bg-slate-900/50 border border-slate-700 pt-0 gap-0 w-full flex flex-col cursor-pointer transition-all duration-200 hover:-translate-y-1 hover:border-emerald-500/50 hover:shadow-lg hover:shadow-emerald-500/10 rounded-lg"
+>
+  <a href={`/courses/${courseSlug}`} class="flex flex-col grow">
+    <header class="p-0 gap-0">
+      <div class="aspect-video w-full bg-teahouse-light relative">
+        {
+          course.cover ? (
+            <img
+              src={course.cover}
+              alt={course.title}
+              class="w-full h-full object-cover"
+            />
+          ) : (
+            <div class="flex h-full items-center justify-center">
+              <div
+                class={`h-full w-full bg-linear-to-br ${getCategoryColor(course.id)} flex items-center justify-center`}
+              >
+                <svg
+                  class="w-16 h-16 text-slate-500/50"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.5"
+                    d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                  />
+                </svg>
+              </div>
+            </div>
+          )
+        }
+      </div>
+    </header>
+    <div class="p-4">
+      <h3
+        class="mt-2 line-clamp-2 font-noto-serif text-xl text-slate-300 font-bold"
+      >
+        {course.title}
+      </h3>
+      <p class="mt-2 line-clamp-3 text-sm text-slate-300/70">
+        {course.description}
+      </p>
+    </div>
+    <div class="grow"></div>
+    <footer class="p-4 pt-0">
+      <div class="flex items-center justify-between text-sm text-slate-300/60">
+        <span>{chapterCount} chapters</span>
+        <span>{formatDate(course.pubDate)}</span>
+      </div>
+    </footer>
+  </a>
+  <div class="flex items-center justify-between p-4 pt-0">
+    <a
+      href={`/courses/${courseSlug}`}
+      class="text-sm font-medium text-teahouse-primary hover:underline"
+    >
+      Start Learning →
+    </a>
+    {
+      course.author && (
+        <span class="text-sm text-slate-300/60">{course.author}</span>
+      )
+    }
+  </div>
+</div>

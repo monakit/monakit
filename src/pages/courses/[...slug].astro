@@ -1,0 +1,341 @@
+---
+import ChapterNavigation from "@/components/course/ChapterNavigation.astro";
+import { CourseSidebar } from "@/components/course/CourseSidebar";
+import CourseTOC from "@/components/course/CourseTOC.astro";
+import { VideoPlayer } from "@/components/course/VideoPlayer";
+import FormattedDate from "@/components/FormattedDate.astro";
+import { ImageViewer } from "@/components/image-viewer";
+import ShareButtons from "@/components/ShareButtons.astro";
+import { SlideViewer } from "@/components/slide/slide-viewer";
+import TagFilter from "@/components/TagFilter.astro";
+import { SITE_TITLE } from "@/consts";
+import MainLayout from "@/layouts/MainLayout.astro";
+import { getSignedEmbedUrl } from "@/lib/cloudflare-stream";
+import {
+  buildChapterId,
+  getChapterCount,
+  getChapterNavigation,
+  getFirstChapter,
+} from "@/lib/course";
+import "@/styles/article.css";
+import { getCollection, getEntry, render } from "astro:content";
+import { createElement } from "react";
+
+const origin = Astro.url.origin;
+const { slug } = Astro.params;
+
+if (!slug) {
+  return Astro.redirect("/courses");
+}
+
+const slugParts = slug.split("/");
+const isCourseDetail = slugParts.length === 1;
+const courseId = isCourseDetail
+  ? slugParts[0]
+  : slugParts.slice(0, -1).join("/");
+const chapterSlug = isCourseDetail ? null : slugParts[slugParts.length - 1];
+
+const course = await getEntry("courses", `${courseId}/toc`);
+
+if (!course) {
+  return Astro.redirect("/404");
+}
+
+const chapterCount = getChapterCount(course.data.structure);
+const firstChapter = getFirstChapter(course.data.structure);
+const tags: string[] = course.data.tags || [];
+
+let chapter = null;
+let navigation = null;
+let ChapterContent = null;
+let isSlideChapter = false;
+
+if (!isCourseDetail && chapterSlug) {
+  const chapterId = buildChapterId(courseId, chapterSlug);
+  chapter = await getEntry("courseChapters", chapterId);
+
+  if (!chapter) {
+    return Astro.redirect("/404");
+  }
+
+  isSlideChapter = !!chapter.data.theme;
+  navigation = getChapterNavigation(course.data.structure, chapterSlug);
+  if (!isSlideChapter) {
+    const rendered = await render(chapter);
+    ChapterContent = rendered.Content;
+  }
+}
+
+const pageTitle = isCourseDetail
+  ? `${course.data.title} | ${SITE_TITLE}`
+  : `${chapter?.data.title} - ${course.data.title} | ${SITE_TITLE}`;
+
+const courseVideoEmbedUrl = course.data.video
+  ? await getSignedEmbedUrl(course.data.video)
+  : null;
+
+const videoSignedUrls: Record<string, string> = {};
+if (chapter?.body) {
+  const matches = [...chapter.body.matchAll(/<Video[^>]+id="([^"]+)"/g)];
+  await Promise.all(
+    matches.map(async ([, uid]) => {
+      const url = await getSignedEmbedUrl(uid);
+      if (url) videoSignedUrls[uid] = url;
+    }),
+  );
+}
+
+const chapterComponents = {
+  Video: (props: { id: string; title?: string }) =>
+    VideoPlayer({
+      title: props.title,
+      embedUrl: videoSignedUrls[props.id] ?? null,
+    }),
+  Slide: (props: { id: string }) =>
+    createElement("iframe", {
+      src: `/courses/${courseId}/slides/${props.id}?chapter=${encodeURIComponent(chapterSlug ?? "")}`,
+      style: {
+        width: "100%",
+        aspectRatio: "16/9",
+        border: "none",
+        borderRadius: "0.5rem",
+        display: "block",
+        boxShadow: "0 4px 24px rgba(0,0,0,0.4)",
+        margin: "1rem 0",
+      },
+      allowFullScreen: true,
+    }),
+};
+---
+
+{
+  isCourseDetail ? (
+    <MainLayout
+      title={pageTitle}
+      description={course.data.description}
+      type="article"
+      author={course.data.author}
+      publishedTime={course.data.pubDate.toISOString()}
+      modifiedTime={course.data.updatedDate?.toISOString()}
+      section="Course"
+      tags={tags}
+    >
+      <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <a
+          href="/courses"
+          class="inline-flex items-center gap-2 text-slate-400 hover:text-white mb-6 transition-colors"
+        >
+          <svg
+            class="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M15 19l-7-7 7-7"
+            />
+          </svg>
+          Back to Courses
+        </a>
+
+        <header class="mb-8">
+          <h1 class="text-3xl md:text-4xl font-bold text-white mb-4">
+            {course.data.title}
+          </h1>
+          <div class="flex flex-wrap items-center gap-4 text-sm text-slate-400 mb-4">
+            <span>{chapterCount} chapters</span>
+            {course.data.author && <span>by {course.data.author}</span>}
+            <span>
+              <FormattedDate date={course.data.pubDate} />
+            </span>
+          </div>
+          <p class="text-lg text-slate-300">{course.data.description}</p>
+
+          {tags.length > 0 && (
+            <div class="mt-4">
+              <TagFilter
+                tags={tags.map((tag) => ({ tag, size: 1 }))}
+                type="courses"
+                usedFor="detail"
+              />
+            </div>
+          )}
+          <div class="flex items-center gap-2 mt-4">
+            <ShareButtons
+              url={`${origin}/courses/${courseId}`}
+              title={course.data.title}
+              description={course.data.description}
+            />
+          </div>
+        </header>
+
+        {courseVideoEmbedUrl && <VideoPlayer embedUrl={courseVideoEmbedUrl} />}
+
+        {course.body && (
+          <div class="prose prose-invert prose-teahouse mb-8">
+            {async () => {
+              const { Content } = await render(course);
+              return <Content />;
+            }}
+          </div>
+        )}
+
+        <section class="bg-slate-800/50 border border-slate-700 rounded-lg p-6 mb-8">
+          <h2 class="text-xl font-semibold text-white mb-4">
+            Table of Contents
+          </h2>
+          <CourseTOC courseId={courseId} structure={course.data.structure} />
+        </section>
+
+        {firstChapter && (
+          <a
+            href={`/courses/${courseId}/${firstChapter.slug}`}
+            class="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-lg transition-colors"
+          >
+            Start Course
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </a>
+        )}
+      </div>
+    </MainLayout>
+  ) : (
+    <MainLayout
+      title={pageTitle}
+      description={chapter?.data.description || course.data.description}
+      type="article"
+      author={course.data.author}
+      section="Course"
+    >
+      <div class="container mx-auto px-4 py-8">
+        <div class="flex gap-8">
+          <CourseSidebar
+            client:load
+            courseId={courseId}
+            courseTitle={course.data.title}
+            structure={course.data.structure}
+            currentSlug={chapterSlug!}
+          />
+
+          <main class={`flex-1 min-w-0 ${isSlideChapter ? "" : "max-w-3xl"}`}>
+            <div class="mb-4">
+              <a
+                href={`/courses/${courseId}`}
+                class="inline-flex items-center gap-2 text-slate-400 hover:text-white text-sm transition-colors"
+              >
+                <svg
+                  class="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15 19l-7-7 7-7"
+                  />
+                </svg>
+                {course.data.title}
+              </a>
+              {navigation?.current.partTitle && (
+                <span class="text-slate-500 text-sm ml-2">
+                  / {navigation.current.partTitle}
+                </span>
+              )}
+            </div>
+
+            <div class="mb-6">
+              <h1 class="text-2xl md:text-3xl font-bold text-white mb-3">
+                {chapter?.data.title}
+              </h1>
+              <div class="flex items-center gap-2">
+                <ShareButtons
+                  url={`${origin}/courses/${courseId}/${chapterSlug}`}
+                  title={`${chapter?.data.title} - ${course.data.title}`}
+                  description={course.data.description}
+                />
+              </div>
+            </div>
+
+            <article
+              class={`prose-teahouse ${isSlideChapter ? "slide-chapter-article" : ""}`}
+            >
+              {!isSlideChapter && (
+                <div class="max-w-none">
+                  {ChapterContent && (
+                    <ChapterContent components={chapterComponents} />
+                  )}
+                </div>
+              )}
+            </article>
+
+            {isSlideChapter && (
+              <div class="slide-chapter-container">
+                <SlideViewer
+                  client:only="react"
+                  content={chapter?.body ?? ""}
+                  theme={chapter?.data.theme ?? "beige"}
+                  transition={chapter?.data.transition ?? "slide"}
+                  controls={chapter?.data.controls ?? true}
+                  progress={chapter?.data.progress ?? true}
+                />
+              </div>
+            )}
+
+            {navigation && (
+              <ChapterNavigation
+                courseId={courseId}
+                previous={navigation.previous}
+                next={navigation.next}
+              />
+            )}
+          </main>
+        </div>
+      </div>
+      <ImageViewer selector="article img" client:load />
+    </MainLayout>
+  )
+}
+
+<style>
+  .slide-chapter-article {
+    display: none;
+  }
+
+  .slide-chapter-container {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    position: relative;
+    overflow: hidden;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    margin-bottom: 1.5rem;
+  }
+
+  .slide-chapter-container :global(.reveal) {
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  article.prose-teahouse {
+    padding-top: 0;
+    padding-left: 0;
+    padding-right: 0;
+  }
+</style>

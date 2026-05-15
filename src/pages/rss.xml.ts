@@ -8,7 +8,8 @@ export async function GET(context: APIContext) {
   const cards = await getCollection("cards");
   const slides = await getCollection("slides");
   const doodles = await getCollection("doodles");
-  const contents = [...posts, ...cards, ...slides, ...doodles];
+  const courses = await getCollection("courses");
+  const contents = [...posts, ...cards, ...slides, ...doodles, ...courses];
 
   if (!context.site) {
     throw new Error("Expected 'context.site' when generating RSS feed.");
@@ -18,9 +19,18 @@ export async function GET(context: APIContext) {
     title: SITE_TITLE,
     description: SITE_DESCRIPTION,
     site: context.site,
-    items: contents.map((content) => ({
-      ...content.data,
-      link: `/${content.collection}/${content.id}`,
-    })),
+    items: contents.map((content) => {
+      if (content.collection === "courses") {
+        const courseSlug = content.id.replace(/\/toc$/, "");
+        return {
+          ...content.data,
+          link: `/courses/${courseSlug}`,
+        };
+      }
+      return {
+        ...content.data,
+        link: `/${content.collection}/${content.id}`,
+      };
+    }),
   });
 }

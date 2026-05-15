@@ -1,0 +1,167 @@
+---
+import { getChapterCount } from "@/lib/course";
+import { getCategoryColor } from "@/lib/utils";
+import type { StructureItemType } from "@/schemas/course";
+
+interface CourseData {
+  id: string;
+  title: string;
+  description: string;
+  author?: string;
+  pubDate: Date;
+  cover?: string;
+  structure: StructureItemType[];
+}
+
+interface Props {
+  course: CourseData;
+}
+
+const { course } = Astro.props;
+const courseSlug = course.id.replace(/\/toc$/, "");
+const chapterCount = getChapterCount(course.structure);
+---
+
+<section class="bg-slate-900/30 py-8">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="mb-8 flex items-center justify-between">
+      <div>
+        <h2 class="mb-4 text-3xl font-bold text-white">
+          Featured <span class="text-lumen">Course</span>
+        </h2>
+        <p class="text-slate-400">
+          Structured learning that grows out of our explorations and builds.
+        </p>
+      </div>
+      <a
+        href="/courses"
+        class="inline-flex items-center gap-2 rounded-md border border-slate-600 bg-transparent px-4 py-2 text-sm font-medium text-slate-300 shadow-xs transition-all duration-300 hover:scale-105 hover:bg-slate-800 hover:text-accent-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 outline-none"
+        style="min-width: 150px"
+      >
+        All Courses
+        <svg
+          class="h-4 w-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M9 5l7 7-7 7"></path>
+        </svg>
+      </a>
+    </div>
+
+    <a
+      href={`/courses/${courseSlug}`}
+      class="group block overflow-hidden rounded-lg border border-slate-700 bg-slate-900/50 transition-all duration-200 hover:border-emerald-500/50 hover:shadow-lg hover:shadow-emerald-500/10"
+    >
+      <div class="flex flex-col md:flex-row">
+        <div
+          class="relative aspect-video w-full md:aspect-auto md:w-1/4 shrink-0"
+        >
+          {
+            course.cover ? (
+              <img
+                src={course.cover}
+                alt={course.title}
+                class="h-full w-full object-cover"
+              />
+            ) : (
+              <div
+                class={`flex h-full min-h-40 w-full items-center justify-center bg-linear-to-br ${getCategoryColor(course.id)}`}
+              >
+                <svg
+                  class="h-16 w-16 text-slate-500/50"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.5"
+                    d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                  />
+                </svg>
+              </div>
+            )
+          }
+        </div>
+
+        <div class="flex flex-1 flex-col justify-between p-6">
+          <div>
+            <h3
+              class="font-noto-serif text-2xl font-bold text-slate-200 group-hover:text-emerald-400 transition-colors"
+            >
+              {course.title}
+            </h3>
+            <p class="mt-3 line-clamp-3 text-slate-400">
+              {course.description}
+            </p>
+          </div>
+
+          <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center gap-4 text-sm text-slate-500">
+              <span class="flex items-center gap-1.5">
+                <svg
+                  class="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                  ></path>
+                </svg>
+                {chapterCount} chapters
+              </span>
+              {
+                course.author && (
+                  <span class="flex items-center gap-1.5">
+                    <svg
+                      class="h-4 w-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                      />
+                    </svg>
+                    {course.author}
+                  </span>
+                )
+              }
+            </div>
+            <span
+              class="inline-flex items-center gap-2 text-sm font-medium text-teahouse-primary group-hover:underline"
+            >
+              Start Learning
+              <svg
+                class="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+              </svg>
+            </span>
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+</section>

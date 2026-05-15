@@ -1,0 +1,93 @@
+---
+import { getCollection } from "astro:content";
+import CourseCard from "@/components/course/CourseCard.astro";
+import TagFilter from "@/components/TagFilter.astro";
+import { SITE_TITLE } from "@/consts";
+import MainLayout from "@/layouts/MainLayout.astro";
+
+const allCourses = await getCollection("courses");
+
+const tags = allCourses.flatMap((course) => course.data.tags || []);
+const tagCounts = tags.reduce(
+  (acc, tag) => {
+    acc[tag] = (acc[tag] || 0) + 1;
+    return acc;
+  },
+  {} as Record<string, number>,
+);
+
+const tagList = Object.entries(tagCounts)
+  .sort(([, a], [, b]) => b - a)
+  .map(([tag, count]) => ({
+    tag,
+    count,
+    size: Math.max(
+      1,
+      Math.min(
+        4,
+        Math.ceil((count * 4) / Math.max(...Object.values(tagCounts))),
+      ),
+    ),
+  }));
+
+const tag = Astro.url.searchParams.get("tag");
+
+let courses = allCourses;
+if (tag) {
+  courses = courses.filter((course) => course.data.tags?.includes(tag));
+}
+
+courses = courses.sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
+
+const pageTitle = `Courses | ${SITE_TITLE}`;
+const pageDescription = "Learn step-by-step with our structured courses.";
+---
+
+<MainLayout title={pageTitle} description={pageDescription}>
+  <div class="container mx-auto px-4 py-8">
+    <header class="mb-8">
+      <h1 class="text-3xl font-bold text-white">Courses</h1>
+      <p class="mt-2 text-slate-400">
+        Structured learning, practical guidance, and things we build.
+      </p>
+    </header>
+
+    {
+      tagList.length > 0 && (
+        <div class="mb-8">
+          <TagFilter
+            tags={tagList}
+            currentTag={tag}
+            type="courses"
+            usedFor="list"
+          />
+        </div>
+      )
+    }
+
+    {
+      courses.length === 0 ? (
+        <p class="text-slate-400">No courses found.</p>
+      ) : (
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {courses.map((course) => (
+            <CourseCard
+              course={{
+                id: course.id,
+                title: course.data.title,
+                description: course.data.description,
+                author: course.data.author,
+                pubDate: course.data.pubDate,
+                cover: course.data.cover,
+                tags: course.data.tags,
+                structure: course.data.structure,
+              }}
+            />
+          ))}
+        </div>
+      )
+    }
+  </div>
+</MainLayout>

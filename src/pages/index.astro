@@ -2,6 +2,7 @@
 import { getCollection } from "astro:content";
 import BlogCard from "@/components/blog/BlogCard.astro";
 import CardCover from "@/components/knowledge-card/CardCover.astro";
+import FeaturedCourseSection from "@/components/landing-page/FeaturedCourseSection.astro";
 import HeroSection from "@/components/landing-page/HeroSection.astro";
 import LatestSection from "@/components/landing-page/LatestSection.astro";
 import ProductSection from "@/components/ProductSection.astro";
@@ -32,7 +33,7 @@ const allCards = (await getCollection("cards"))
   }));
 
 const allSlides = (await getCollection("slides"))
-  .filter((slide) => slide.data.pubDate) // Filter out slides without pubDate
+  .filter((slide) => slide.data.pubDate)
   .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
   .map((slide) => ({
     id: slide.id,
@@ -45,10 +46,24 @@ const allSlides = (await getCollection("slides"))
     tags: slide.data.tags,
   }));
 
+const allCourses = (await getCollection("courses"))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+  .map((course) => ({
+    id: course.id,
+    title: course.data.title,
+    description: course.data.description,
+    author: course.data.author,
+    pubDate: course.data.pubDate,
+    cover: course.data.cover,
+    tags: course.data.tags,
+    structure: course.data.structure,
+  }));
+
 const allTags = [
   ...allPosts.flatMap((post) => post.tags || []),
   ...allCards.flatMap((card) => card.tags || []),
   ...allSlides.flatMap((slide) => slide.tags || []),
+  ...allCourses.flatMap((course) => course.tags || []),
 ];
 const uniqueTags = [...new Set(allTags)];
 
@@ -91,7 +106,7 @@ const activeDoodle = activeDoodleEntry
       {posts.map((blog) => <BlogCard blog={blog} />)}
     </LatestSection>
 
-    <ProductSection />
+    {allCourses.length > 0 && <FeaturedCourseSection course={allCourses[0]} />}
 
     <LatestSection
       title="Cards"

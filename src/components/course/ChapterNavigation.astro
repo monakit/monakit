@@ -1,0 +1,77 @@
+---
+import type { FlatChapter } from "@/lib/course";
+
+interface Props {
+  courseId: string;
+  previous?: FlatChapter;
+  next?: FlatChapter;
+}
+
+const { courseId, previous, next } = Astro.props;
+---
+
+<nav
+  class="flex items-center justify-between gap-4 mt-8 pt-8 border-t border-slate-700"
+>
+  {
+    previous ? (
+      <a
+        href={`/courses/${courseId}/${previous.slug}`}
+        class="group flex items-center gap-2 px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-lg hover:border-emerald-500/50 hover:bg-slate-800 transition-colors max-w-[45%]"
+      >
+        <svg
+          class="w-5 h-5 text-slate-400 group-hover:text-emerald-400 transition-colors shrink-0"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M15 19l-7-7 7-7"
+          />
+        </svg>
+        <div class="min-w-0">
+          <div class="text-xs text-slate-500">Previous</div>
+          <div class="text-sm text-slate-300 group-hover:text-white truncate transition-colors">
+            {previous.title}
+          </div>
+        </div>
+      </a>
+    ) : (
+      <div />
+    )
+  }
+
+  {
+    next ? (
+      <a
+        href={`/courses/${courseId}/${next.slug}`}
+        class="group flex items-center gap-2 px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-lg hover:border-emerald-500/50 hover:bg-slate-800 transition-colors max-w-[45%] ml-auto text-right"
+      >
+        <div class="min-w-0">
+          <div class="text-xs text-slate-500">Next</div>
+          <div class="text-sm text-slate-300 group-hover:text-white truncate transition-colors">
+            {next.title}
+          </div>
+        </div>
+        <svg
+          class="w-5 h-5 text-slate-400 group-hover:text-emerald-400 transition-colors shrink-0"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M9 5l7 7-7 7"
+          />
+        </svg>
+      </a>
+    ) : (
+      <div />
+    )
+  }
+</nav>

@@ -3,7 +3,7 @@ import react from "@astrojs/react";
 import vercel from "@astrojs/vercel";
 import sitemap from "@inox-tools/sitemap-ext";
 import tailwindcss from "@tailwindcss/vite";
-import { defineConfig } from "astro/config";
+import { defineConfig, envField } from "astro/config";
 import rehypeSanitize, { defaultSchema } from "rehype-sanitize";
 import { analyzer } from "vite-bundle-analyzer";
 import { env } from "./src/env";
@@ -36,6 +36,7 @@ export default defineConfig({
       include: [
         "**/components/image-viewer.tsx",
         "**/components/slide/slide-viewer.tsx",
+        "**/components/course/CourseSidebar.tsx",
       ],
     }),
   ],
@@ -49,6 +50,25 @@ export default defineConfig({
           openAnalyzer: false,
         }),
     ].filter(Boolean),
+  },
+  env: {
+    schema: {
+      CLOUDFLARE_STREAM_CUSTOMER_CODE: envField.string({
+        context: "server",
+        access: "secret",
+        optional: true,
+      }),
+      CLOUDFLARE_STREAM_KEY_ID: envField.string({
+        context: "server",
+        access: "secret",
+        optional: true,
+      }),
+      CLOUDFLARE_STREAM_PRIVATE_KEY: envField.string({
+        context: "server",
+        access: "secret",
+        optional: true,
+      }),
+    },
   },
   security: {
     checkOrigin: false,
