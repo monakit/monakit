@@ -60,7 +60,7 @@ const hasMermaid = hasMermaidContent(post.body ?? "");
   keywords={tags.join(", ")}
 >
   <article class="container px-4 md:px-6 prose-teahouse">
-    <div class="max-w-screen-lg mx-auto p-4">
+    <div class="max-w-5xl mx-auto p-4">
       <div class="mb-4 py-4 text-center leading-none">
         <h1 class="mb-2 font-serif">{post.data.title}</h1>
         <div class="date mb-2 text-gray-500">
@@ -97,10 +97,10 @@ const hasMermaid = hasMermaidContent(post.body ?? "");
       </div>
       <hr />
     </div>
-    <div class="max-w-screen-lg mx-auto p-4 text-lg">
+    <div class="max-w-5xl mx-auto p-4 text-lg">
       <Content />
     </div>
-    <div class="max-w-screen-lg mx-auto p-4">
+    <div class="max-w-5xl mx-auto p-4">
       <ContentNavigation
         adjacentContent={adjacentContent}
         contentType="blogs"

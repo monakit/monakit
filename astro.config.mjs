@@ -3,12 +3,18 @@ import react from "@astrojs/react";
 import vercel from "@astrojs/vercel";
 import sitemap from "@inox-tools/sitemap-ext";
 import tailwindcss from "@tailwindcss/vite";
-import { defineConfig, envField } from "astro/config";
+import { defineConfig } from "astro/config";
 import rehypeSanitize, { defaultSchema } from "rehype-sanitize";
+import { loadEnv } from "vite";
 import { analyzer } from "vite-bundle-analyzer";
-import { env } from "./src/env";
+import { envSchema } from "./src/envSchema";
+
+const { SITE_URL } = loadEnv(process.env.NODE_ENV, process.cwd(), "");
 
 export default defineConfig({
+  env: {
+    schema: envSchema,
+  },
   server: {
     // This will allow all hosts to be used in development. Not only localhost.
     allowedHosts: true,
@@ -21,7 +27,7 @@ export default defineConfig({
   adapter: vercel({
     imageService: true,
   }),
-  site: env().SITE_URL,
+  site: SITE_URL || "http://localhost:4321",
   markdown: {
     rehypePlugins: [rehypeSanitize(defaultSchema)],
   },
@@ -44,27 +50,5 @@ export default defineConfig({
           openAnalyzer: false,
         }),
     ].filter(Boolean),
-  },
-  env: {
-    schema: {
-      CLOUDFLARE_STREAM_CUSTOMER_CODE: envField.string({
-        context: "server",
-        access: "secret",
-        optional: true,
-      }),
-      CLOUDFLARE_STREAM_KEY_ID: envField.string({
-        context: "server",
-        access: "secret",
-        optional: true,
-      }),
-      CLOUDFLARE_STREAM_PRIVATE_KEY: envField.string({
-        context: "server",
-        access: "secret",
-        optional: true,
-      }),
-    },
-  },
-  security: {
-    checkOrigin: false,
   },
 });

@@ -11,6 +11,7 @@
   "formatter": {
     "indentStyle": "space"
   },
+  "assist": { "actions": { "source": { "organizeImports": "on" } } },
   "linter": {
     "enabled": true,
     "rules": {
@@ -26,7 +27,6 @@
       "tailwindDirectives": true
     }
   },
-  "assist": { "actions": { "source": { "organizeImports": "on" } } },
   "overrides": [
     {
       "includes": ["**/*.svelte", "**/*.astro", "**/*.vue"],
@@ -39,16 +39,6 @@
           "correctness": {
             "noUnusedVariables": "off",
             "noUnusedImports": "off"
-          }
-        }
-      }
-    },
-    {
-      "includes": ["**/*.css"],
-      "linter": {
-        "rules": {
-          "suspicious": {
-            "noUnknownAtRules": "off"
           }
         }
       }

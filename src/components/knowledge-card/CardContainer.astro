@@ -1,4 +1,8 @@
 ---
+import TagFilter from "../TagFilter.astro";
+import CardLink from "./CardLink.astro";
+import type { ArticleData, CardTheme } from "./types";
+
 export interface Props {
   articleData: ArticleData;
   cardStyles?: React.CSSProperties;
@@ -13,10 +17,6 @@ const {
   tags = [],
   className = "",
 } = Astro.props;
-
-import TagFilter from "../TagFilter.astro";
-import CardLink from "./CardLink.astro";
-import type { ArticleData, CardTheme } from "./types";
 ---
 
 <div
@@ -28,7 +28,7 @@ import type { ArticleData, CardTheme } from "./types";
 >
   <div class="md:p-8 relative z-10 flex flex-col h-auto p-4">
     <div class="flex">
-      <div class="mr-6 flex-shrink-0">
+      <div class="mr-6 shrink-0">
         <div class="card-decorative-line"></div>
       </div>
       <div class="w-full">
@@ -49,12 +49,10 @@ import type { ArticleData, CardTheme } from "./types";
     <div class="flex-1 min-h-0">
       <slot />
     </div>
-    <div
-      class="border-t border-gray-200/20 pt-4 mt-4 flex-shrink-0 overflow-hidden"
-    >
+    <div class="border-t border-gray-200/20 pt-4 mt-4 shrink-0 overflow-hidden">
       <div class="flex-1 min-w-0">
         <div class="card-key-point text-sm flex items-center gap-1 justify-end">
-          <div class="text-sm flex-shrink-0">Source:</div>
+          <div class="text-sm shrink-0">Source:</div>
           <div class="min-w-0">
             <CardLink title={articleData.title} url={articleData.url || ""} />
           </div>

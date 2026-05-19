@@ -57,7 +57,7 @@ const formatDate = (date: Date | string) => {
 <div
   class="relative overflow-hidden bg-slate-900/50 border border-slate-700 pt-0 gap-0 w-full flex flex-col cursor-pointer transition-all duration-200 hover:-translate-y-1 hover:border-emerald-500/50 hover:shadow-lg hover:shadow-emerald-500/10 rounded-lg"
 >
-  <a href={`/blogs/${blog.id}`} class="flex flex-col flex-grow">
+  <a href={`/blogs/${blog.id}`} class="flex flex-col grow">
     <header class="p-0 gap-0">
       <div class="aspect-video w-full bg-teahouse-light relative">
         {
@@ -72,7 +72,7 @@ const formatDate = (date: Date | string) => {
           ) : (
             <div class="flex h-full items-center justify-center">
               <div
-                class={`h-full w-full bg-gradient-to-br ${getCategoryColor(blog.id)}`}
+                class={`h-full w-full bg-linear-to-br ${getCategoryColor(blog.id)}`}
               />
             </div>
           )
@@ -97,7 +97,7 @@ const formatDate = (date: Date | string) => {
         <div class="text-sm text-slate-300/60">{blog.author}</div>
       </div>
     </footer>
-    <div class="flex-grow"></div>
+    <div class="grow"></div>
   </a>
   <div class="flex items-center justify-between mt-2 p-4">
     <a

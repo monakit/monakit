@@ -16,7 +16,9 @@ const collections = creationsData as ProductCollection[];
         collections.map((collection) => (
           <div>
             <div class="mb-6">
-              <h2 class="mb-2 text-2xl font-bold text-white">{collection.collection}</h2>
+              <h2 class="mb-2 text-2xl font-bold text-white">
+                {collection.collection}
+              </h2>
               <p class="text-slate-400">{collection.description}</p>
             </div>
             <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">

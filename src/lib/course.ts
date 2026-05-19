@@ -21,6 +21,9 @@ export interface ChapterNavigation {
   next?: FlatChapter;
 }
 
+/**
+ * Flatten course structure into a single array of chapters
+ */
 export function getFlatChapterList(
   structure: StructureItemType[],
 ): FlatChapter[] {
@@ -56,10 +59,16 @@ export function getFlatChapterList(
   return chapters;
 }
 
+/**
+ * Get total chapter count from structure
+ */
 export function getChapterCount(structure: StructureItemType[]): number {
   return getFlatChapterList(structure).length;
 }
 
+/**
+ * Get chapter navigation (previous, current, next)
+ */
 export function getChapterNavigation(
   structure: StructureItemType[],
   currentSlug: string,
@@ -81,6 +90,9 @@ export function getChapterNavigation(
   };
 }
 
+/**
+ * Check if a chapter is free
+ */
 export function isChapterFree(
   structure: StructureItemType[],
   chapterSlug: string,
@@ -90,6 +102,9 @@ export function isChapterFree(
   return chapter?.free ?? false;
 }
 
+/**
+ * Get the first chapter of a course
+ */
 export function getFirstChapter(
   structure: StructureItemType[],
 ): FlatChapter | undefined {
@@ -97,20 +112,32 @@ export function getFirstChapter(
   return chapters[0];
 }
 
+/**
+ * Get course ID from chapter ID (e.g., "my-course/01-intro" -> "my-course")
+ */
 export function getCourseIdFromChapterId(chapterId: string): string {
   const parts = chapterId.split("/");
   return parts.slice(0, -1).join("/");
 }
 
+/**
+ * Get chapter slug from chapter ID (e.g., "my-course/01-intro" -> "01-intro")
+ */
 export function getChapterSlugFromId(chapterId: string): string {
   const parts = chapterId.split("/");
   return parts[parts.length - 1];
 }
 
+/**
+ * Build chapter ID from course ID and slug
+ */
 export function buildChapterId(courseId: string, chapterSlug: string): string {
   return `${courseId}/${chapterSlug}`;
 }
 
+/**
+ * Structure helper: group chapters by parts for rendering
+ */
 export interface StructuredTOC {
   type: "part" | "chapter";
   title: string;

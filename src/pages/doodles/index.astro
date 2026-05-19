@@ -28,38 +28,36 @@ const pageDescription =
         <p class="text-white/70">No doodles yet. Check back soon.</p>
       ) : (
         <ol class="relative border-l pl-8">
-          {
-            doodles.map((doodle) => (
-              <li class="relative mb-10 last:mb-0" aria-label={doodle.title}>
-                <div
-                  class="absolute -left-12 -top-3 mt-1 flex h-8 w-8 items-center justify-center rounded-full bg-teahouse-bg"
-                  aria-hidden="true"
+          {doodles.map((doodle) => (
+            <li class="relative mb-10 last:mb-0" aria-label={doodle.title}>
+              <div
+                class="absolute -left-12 -top-3 mt-1 flex h-8 w-8 items-center justify-center rounded-full bg-teahouse-bg"
+                aria-hidden="true"
+              >
+                <OptimizedImage
+                  src="/activity.svg"
+                  alt=""
+                  width={20}
+                  height={20}
+                  class="h-5 w-5 invert"
+                />
+              </div>
+              <div class="space-y-3">
+                <time class="block text-xs font-semibold uppercase tracking-[0.3em] text-white/60">
+                  {formatDate(doodle.pubDate).toUpperCase()}
+                </time>
+                <a
+                  href={`/doodles/${doodle.id}`}
+                  class="text-lg font-semibold text-white transition-colors hover:text-primary md:text-xl"
                 >
-                  <OptimizedImage
-                    src="/activity.svg"
-                    alt=""
-                    width={20}
-                    height={20}
-                    class="h-5 w-5 invert"
-                  />
-                </div>
-                <div class="space-y-3">
-                  <time class="block text-xs font-semibold uppercase tracking-[0.3em] text-white/60">
-                    {formatDate(doodle.pubDate).toUpperCase()}
-                  </time>
-                  <a
-                    href={`/doodles/${doodle.id}`}
-                    class="text-lg font-semibold text-white transition-colors hover:text-primary md:text-xl"
-                  >
-                    {doodle.title}
-                  </a>
-                  <p class="text-sm text-white/70 md:text-base">
-                    {doodle.description}
-                  </p>
-                </div>
-              </li>
-            ))
-          }
+                  {doodle.title}
+                </a>
+                <p class="text-sm text-white/70 md:text-base">
+                  {doodle.description}
+                </p>
+              </div>
+            </li>
+          ))}
         </ol>
       )
     }

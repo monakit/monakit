@@ -1,30 +1,36 @@
 import { defineCollection } from "astro:content";
 import { glob } from "astro/loaders";
-import { BlogMetadata } from "./schemas/blog";
-import { CardMetadata } from "./schemas/card";
+import { BlogMetadata } from "./schemas/content/blog";
+import { CardMetadata } from "./schemas/content/card";
 import {
   ChapterMetadata,
   CourseMetadata,
   CourseSlideResource,
-} from "./schemas/course";
-import { DoodleMetadata } from "./schemas/doodle";
-import { SlideMetadata } from "./schemas/slide";
+} from "./schemas/content/course";
+import { DoodleMetadata } from "./schemas/content/doodle";
+import { SlideMetadata } from "./schemas/content/slide";
 
 const blogs = defineCollection({
   loader: glob({
     base: "./src/content/blogs",
-    pattern: "**/[0-9][0-9][0-9][0-9]-[0-9][0-9]/*.{md,mdx}",
+    pattern: "**/*.{md,mdx}",
   }),
   schema: BlogMetadata,
 });
 
 const cards = defineCollection({
-  loader: glob({ base: "./src/content/cards", pattern: "**/*.{md,mdx}" }),
+  loader: glob({
+    base: "./src/content/cards",
+    pattern: "**/*.{md,mdx}",
+  }),
   schema: CardMetadata,
 });
 
 const slides = defineCollection({
-  loader: glob({ base: "./src/content/slides", pattern: "**/*.{md,mdx}" }),
+  loader: glob({
+    base: "./src/content/slides",
+    pattern: "**/*.{md,mdx}",
+  }),
   schema: SlideMetadata,
 });
 

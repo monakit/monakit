@@ -1,6 +1,4 @@
 ---
-import { getCollection, getEntry, render } from "astro:content";
-import sitemap from "sitemap-ext:config";
 import FormattedDate from "@/components/FormattedDate.astro";
 import { ImageViewer } from "@/components/image-viewer";
 import ContentNavigation from "@/components/navigation/ContentNavigation.astro";
@@ -9,6 +7,8 @@ import { SITE_DESCRIPTION, SITE_TITLE } from "@/consts";
 import MainLayout from "@/layouts/MainLayout.astro";
 import { getAdjacentContent } from "@/lib/navigation";
 import "@/styles/article.css";
+import { getCollection, getEntry, render } from "astro:content";
+import sitemap from "sitemap-ext:config";
 
 sitemap(async ({ addToSitemap }) => {
   const doodles = await getCollection("doodles");
@@ -53,7 +53,7 @@ const adjacentContent = getAdjacentContent(allDoodles, doodle.id);
   section="Doodle"
 >
   <article class="container px-4 md:px-6 prose-teahouse">
-    <div class="max-w-screen-lg mx-auto p-4">
+    <div class="max-w-5xl mx-auto p-4">
       <div class="mb-4 py-4 text-center leading-none">
         <h1 class="mb-2 font-serif">{title}</h1>
       </div>
@@ -69,10 +69,10 @@ const adjacentContent = getAdjacentContent(allDoodles, doodle.id);
       </div>
       <hr />
     </div>
-    <div class="max-w-screen-lg mx-auto p-4 text-lg">
+    <div class="max-w-5xl mx-auto p-4 text-lg">
       <Content />
     </div>
-    <div class="max-w-screen-lg mx-auto p-4">
+    <div class="max-w-5xl mx-auto p-4">
       <ContentNavigation
         adjacentContent={adjacentContent}
         contentType="doodles"

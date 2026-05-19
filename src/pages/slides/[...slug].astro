@@ -121,7 +121,22 @@ const coverMD = `## ${slide.data.title}\n${slide.data.author}\n\n${formatDate(sl
   keywords={slide.data.tags?.join(", ")}
   image={ogImageUrl.toString()}
 >
-  <div class="slide-container">
+  <div class="slide-wrapper">
+    <div class="slide-container">
+      <SlideViewer
+        client:only="react"
+        content={`${coverMD}\n---\n${slideMarkdownWithResolvedImages}`}
+        theme={slide.data.theme}
+        transition={slide.data.transition}
+        controls={slide.data.controls}
+        progress={slide.data.progress}
+      />
+      <ImageViewer
+        selector=".slide-container .slides img"
+        observe=".slide-container"
+        client:load
+      />
+    </div>
     <div class="slide-share">
       <ShareButtons
         url={`${origin}/slides/${slide.id}`}
@@ -131,19 +146,6 @@ const coverMD = `## ${slide.data.title}\n${slide.data.author}\n\n${formatDate(sl
         variant="slide"
       />
     </div>
-    <SlideViewer
-      client:only="react"
-      content={`${coverMD}\n---\n${slideMarkdownWithResolvedImages}`}
-      theme={slide.data.theme}
-      transition={slide.data.transition}
-      controls={slide.data.controls}
-      progress={slide.data.progress}
-    />
-    <ImageViewer
-      selector=".slide-container .slides img"
-      observe=".slide-container"
-      client:load
-    />
   </div>
   <div class="container mx-auto p-4">
     <ContentNavigation adjacentContent={adjacentContent} contentType="slides" />
@@ -151,22 +153,28 @@ const coverMD = `## ${slide.data.title}\n${slide.data.author}\n\n${formatDate(sl
 </MainLayout>
 
 <style>
-  .slide-container {
-    width: 95%;
-    height: 80vh;
-    min-height: 600px;
-    margin: 0 auto;
+  .slide-wrapper {
+    width: min(95%, calc(80vh * 16 / 9));
+    margin: 1rem auto 2rem;
     position: relative;
-    contain: layout style;
-    padding-top: 24px;
   }
 
   .slide-share {
     position: absolute;
-    top: 2rem;
-    right: -4rem;
-    z-index: 20;
-    display: flex;
+    top: 1rem;
+    right: 1rem;
+    z-index: 10;
+  }
+
+  .slide-container {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    position: relative;
+    contain: layout style;
+    border-radius: 0.5rem;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    overflow: hidden;
   }
 
   .slide-container :global(.reveal) {
@@ -180,18 +188,14 @@ const coverMD = `## ${slide.data.title}\n${slide.data.author}\n\n${formatDate(sl
   }
 
   @media (max-width: 767px) {
-    .slide-container {
-      height: 70vh;
-      min-height: 480px;
+    .slide-wrapper {
+      width: 100%;
+      margin: 0 0 1.5rem;
     }
 
     .slide-share {
-      top: 0rem;
-      right: 1rem;
-      left: auto;
-      z-index: 20;
-      background: transparent;
-      padding: 0.25rem;
+      top: 0.5rem;
+      right: 0.5rem;
     }
   }
 

@@ -1,6 +1,6 @@
 ---
 import { DOODLE_EMOJIS } from "@/consts";
-import type { Doodle } from "@/schemas/doodle";
+import type { Doodle } from "@/schemas/content/doodle";
 import ScrollingTags from "./ScrollingTags.astro";
 
 export interface Props {
@@ -14,10 +14,10 @@ const doodleEmoji =
 ---
 
 <section
-  class="relative h-[calc(100vh-4rem)] overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950"
+  class="relative h-[calc(100vh-4rem)] overflow-hidden bg-linear-to-br from-slate-950 via-slate-900 to-slate-950"
 >
   <div
-    class="absolute inset-0 bg-[linear-gradient(to_right,#0f172a_1px,transparent_1px),linear-gradient(to_bottom,#0f172a_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_110%)] animate-pulse"
+    class="absolute inset-0 bg-[linear-gradient(to_right,#0f172a_1px,transparent_1px),linear-gradient(to_bottom,#0f172a_1px,transparent_1px)] bg-size-[4rem_4rem] mask-[radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_110%)] animate-pulse"
   >
   </div>
 
@@ -45,68 +45,68 @@ const doodleEmoji =
         id="mona-text"
       >
         <div id="hero-content">
-          {doodle ? (
-            <>
-              <h1
-                class="mb-4 text-5xl font-bold tracking-tight text-white sm:text-7xl"
-              >
-                <span
-                  class="relative inline-block text-primary text-glow animate-pulse"
-                >
-                  {doodleEmoji}
-                </span>&nbsp;{doodle.title}
-              </h1>
+          {
+            doodle ? (
+              <>
+                <h1 class="mb-4 text-5xl font-bold tracking-tight text-white sm:text-7xl">
+                  <span class="relative inline-block text-primary text-glow animate-pulse">
+                    {doodleEmoji}
+                  </span>
+                  &nbsp;{doodle.title}
+                </h1>
 
-              <p class="mx-auto max-w-3xl text-xl text-white leading-relaxed">
-                {doodle.description}
-              </p>
-            </>
-          ) : (
-            <>
-              <h1
-                class="mb-4 text-5xl font-bold tracking-tight text-white sm:text-7xl"
-              >
-                <span
-                  class="relative inline-block text-primary text-glow animate-pulse"
-                >
-                  Mona
-                </span>{" "}— Learn from What We Build
-              </h1>
+                <p class="mx-auto max-w-3xl text-xl text-white leading-relaxed">
+                  {doodle.description}
+                </p>
+              </>
+            ) : (
+              <>
+                <h1 class="mb-4 text-5xl font-bold tracking-tight text-white sm:text-7xl">
+                  <span class="relative inline-block text-primary text-glow animate-pulse">
+                    Mona
+                  </span>{" "}
+                  — Learn from What We Build
+                </h1>
 
-              <p class="mx-auto max-w-3xl text-xl text-white leading-relaxed">
-                Practical
-                <span class="text-nebula"> insights</span>,{" "}
-                <span class="text-solar">concise notes</span>{" "}
-                and{" "}
-                <span class="text-cosmic"> hands-on guides </span>
-                — created by developers, for developers.
-              </p>
-            </>
-          )}
+                <p class="mx-auto max-w-3xl text-xl text-white leading-relaxed">
+                  Practical
+                  <span class="text-nebula"> insights</span>,{" "}
+                  <span class="text-solar">concise notes</span> and{" "}
+                  <span class="text-cosmic"> hands-on guides </span>— created by
+                  developers, for developers.
+                </p>
+              </>
+            )
+          }
         </div>
 
-        {doodle && (
-          <a
-            href={doodle.href}
-            class="mt-6 inline-flex items-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 rounded-lg transition-colors opacity-0 translate-y-2 pointer-events-none transform"
-            data-hero-button
-          >
-            Know More →
-          </a>
-        )}
+        {
+          doodle && (
+            <a
+              href={doodle.href}
+              class="mt-6 inline-flex items-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 rounded-lg transition-colors opacity-0 translate-y-2 pointer-events-none transform"
+              data-hero-button
+            >
+              Know More →
+            </a>
+          )
+        }
       </div>
     </div>
   </div>
 </section>
 
 <script>
-  import { createTimeline, stagger, text } from "animejs";
+  import { type Target } from "animejs";
+  import { splitText } from "animejs/text";
+  import { createTimeline } from "animejs/timeline";
+  import { stagger } from "animejs/utils";
 
   document.addEventListener("DOMContentLoaded", () => {
     const heroContent = document.getElementById("hero-content");
-    const heroButton = document.querySelector("[data-hero-button]") as
-      | HTMLAnchorElement
-      | null;
+    const heroButton = document.querySelector(
+      "[data-hero-button]",
+    ) as HTMLAnchorElement | null;
 
     const startTags = () => {
       document.dispatchEvent(new Event("start-tags"));
@@ -118,8 +118,7 @@ const doodleEmoji =
         return;
       }
 
-      const buttonTimeline = createTimeline({
-      });
+      const buttonTimeline = createTimeline({});
 
       buttonTimeline.add(heroButton, {});
 
@@ -135,7 +134,7 @@ const doodleEmoji =
     };
 
     if (heroContent) {
-      const { chars } = text.split(heroContent, {
+      const { chars } = splitText(heroContent, {
         words: false,
         chars: true,
       });
@@ -149,10 +148,20 @@ const doodleEmoji =
         .add(
           chars,
           {
-            y: [($el) => (+$el.dataset.line % 2 ? "100%" : "-200%"), "0%"],
+            y: [
+              (target: Target) => {
+                if (!(target instanceof HTMLElement)) {
+                  return "0%";
+                }
+
+                const line = Number(target.dataset.line ?? 0);
+                return line % 2 ? "100%" : "-200%";
+              },
+              "0%",
+            ],
             opacity: [0, 1],
           },
-          stagger(10, { from: "random" })
+          stagger(10, { from: "random" }),
         )
         .init()
         .then(revealButton);

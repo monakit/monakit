@@ -7,24 +7,6 @@ import {
   KNOWLEDGE_CARD_THEME,
 } from "@/themes/knowledge-card-themes";
 
-const CATEGORY_GRADIENTS = [
-  "from-emerald-100 to-emerald-200",
-  "from-amber-100 to-amber-200",
-  "from-blue-100 to-blue-200",
-  "from-pink-100 to-pink-200",
-  "from-purple-100 to-purple-200",
-  "from-teal-100 to-teal-200",
-  "from-orange-100 to-orange-200",
-  "from-cyan-100 to-cyan-200",
-  "from-lime-100 to-lime-200",
-  "from-gray-100 to-gray-200",
-];
-
-export function getCategoryColor(id: string): string {
-  const sum = id.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  return CATEGORY_GRADIENTS[sum % CATEGORY_GRADIENTS.length];
-}
-
 export const TEMPLATE_KEY_MAP: Record<string, string> = {
   blackwhite: "blackWhite",
   vintage: "vintage",
@@ -47,17 +29,35 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function hasMermaidContent(content: string | undefined): boolean {
-  if (!content) return false;
-  return /```(?:mermaid|mmd)\b|<pre[^>]*class=["'][^"']*mermaid/i.test(content);
-}
-
 export function formatDate(dateString: string | Date): string {
   return new Date(dateString).toLocaleDateString("en-us", {
     year: "numeric",
     month: "short",
     day: "numeric",
   });
+}
+
+const CATEGORY_GRADIENTS = [
+  "from-emerald-100 to-emerald-200",
+  "from-amber-100 to-amber-200",
+  "from-blue-100 to-blue-200",
+  "from-pink-100 to-pink-200",
+  "from-purple-100 to-purple-200",
+  "from-teal-100 to-teal-200",
+  "from-orange-100 to-orange-200",
+  "from-cyan-100 to-cyan-200",
+  "from-lime-100 to-lime-200",
+  "from-gray-100 to-gray-200",
+];
+
+export function getCategoryColor(id: string): string {
+  const sum = id.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  return CATEGORY_GRADIENTS[sum % CATEGORY_GRADIENTS.length];
+}
+
+export function hasMermaidContent(content: string | undefined): boolean {
+  if (!content) return false;
+  return /```(?:mermaid|mmd)\b|<pre[^>]*class=["'][^"']*mermaid/i.test(content);
 }
 
 export function parseStartDate(dateString: string | null): Date | undefined {

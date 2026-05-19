@@ -1,4 +1,4 @@
-import type { PaginatedResponse } from "../schemas/blog";
+import type { PaginatedResponse } from "../schemas/content/blog";
 
 export function paginate<T>(
   items: T[],

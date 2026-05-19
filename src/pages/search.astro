@@ -111,7 +111,7 @@ import MainLayout from "../layouts/MainLayout.astro";
                       .split(", ")
                       .map(
                         (tag) =>
-                          `<span class="px-2 py-1 text-xs bg-slate-100 text-slate-600 rounded">${tag}</span>`
+                          `<span class="px-2 py-1 text-xs bg-slate-100 text-slate-600 rounded">${tag}</span>`,
                       )
                       .join("")}
                   </div>
@@ -120,7 +120,7 @@ import MainLayout from "../layouts/MainLayout.astro";
                 }
               </div>
             `;
-            })
+            }),
           );
 
           resultsContainer.innerHTML = `

@@ -75,6 +75,8 @@
   --solar: 32 100% 51%;
   --cosmic: 84 81% 56%;
   --lumen: 200 86% 60%;
+  --ember: 9 76% 60%;
+  --mist: 215 14% 72%;
 }
 
 pre.mermaid {
@@ -115,6 +117,9 @@ pre.mermaid {
   --color-nebula: hsl(var(--nebula));
   --color-solar: hsl(var(--solar));
   --color-cosmic: hsl(var(--cosmic));
+  --color-lumen: hsl(var(--lumen));
+  --color-ember: hsl(var(--ember));
+  --color-mist: hsl(var(--mist));
 }
 
 @layer base {
@@ -142,6 +147,14 @@ pre.mermaid {
 
   .text-lumen {
     color: hsl(var(--lumen));
+  }
+
+  .text-ember {
+    color: hsl(var(--ember));
+  }
+
+  .text-mist {
+    color: hsl(var(--mist));
   }
 
   .line-clamp-2 {
@@ -447,7 +460,8 @@ pre.mermaid {
 /* Reveal viewport responsive styles */
 @media (max-width: 600px) {
   .reveal-viewport h2 {
-    font-size: 1.5em;
+    /* biome-ignore lint/complexity/noImportantStyles: slides */
+    font-size: 1.5em !important;
   }
 
   .reveal-viewport p,
@@ -458,7 +472,8 @@ pre.mermaid {
 
 @media (max-width: 485px) {
   .reveal-viewport h2 {
-    font-size: 1em;
+    /* biome-ignore lint/complexity/noImportantStyles: slides */
+    font-size: 1em !important;
   }
 
   .reveal-viewport p,
@@ -541,11 +556,11 @@ pre.mermaid {
   transform: rotateY(180deg);
 }
 
-.reveal .mermaid.hljs {
+.mermaid.hljs {
   background: oklch(97% 0.014 254.604);
 }
 
-.reveal .mermaid.hljs svg {
+.mermaid.hljs svg {
   margin-left: auto;
   margin-right: auto;
 }
@@ -553,9 +568,4 @@ pre.mermaid {
 .reveal table {
   width: 100%;
   font-size: 20px;
-}
-
-.reveal .mermaid.hljs svg {
-  margin-left: auto;
-  margin-right: auto;
 }

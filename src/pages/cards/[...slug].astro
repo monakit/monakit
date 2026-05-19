@@ -71,71 +71,6 @@ if (cardParsedData?.mermaidMarkdown) {
   }
 }
 
-function cleanMermaidText(text: string): string {
-  const lines: string[] = [];
-  for (const lineRaw of text.split("\n")) {
-    let line = lineRaw;
-    if (line.includes("root((")) {
-      const pattern = /(\(\([^()]*?)\s+\([^()]*?\)(.*?\)\))/;
-      line = line.replace(pattern, (_match, p1, p2) => `${p1}${p2}`);
-    } else {
-      const pattern = /\s*\([^()]*?\)\s*(?=:|\w|\s)/g;
-      line = line.replace(pattern, "");
-    }
-    lines.push(line);
-  }
-  let mmMarkdown = lines.join("\n");
-  if (!mmMarkdown.startsWith("mindmap")) {
-    mmMarkdown = `mindmap\n${mmMarkdown}`;
-  }
-  return mmMarkdown;
-}
-
-function parseMindmapToJson(text: string): {
-  root: string;
-  branches: Array<{
-    title: string;
-    subBranches: Array<{ title: string; leaves: string[] }>;
-  }>;
-} {
-  const lines = text.split("\n").filter((line) => line.trim());
-  const result: {
-    root: string;
-    branches: Array<{
-      title: string;
-      subBranches: Array<{ title: string; leaves: string[] }>;
-    }>;
-  } = { root: "", branches: [] };
-
-  let currentBranch: {
-    title: string;
-    subBranches: Array<{ title: string; leaves: string[] }>;
-  } | null = null;
-  let currentSubBranch: { title: string; leaves: string[] } | null = null;
-
-  for (const line of lines) {
-    const trimmedLine = line.trim();
-    if (trimmedLine === "mindmap") continue;
-    if (trimmedLine.includes("root((")) {
-      const rootMatch = trimmedLine.match(/root\(\(([^)]+)\)\)/);
-      if (rootMatch) result.root = rootMatch[1].trim();
-      continue;
-    }
-    const indentLevel = line.length - line.trimStart().length;
-    if (indentLevel === 4) {
-      currentBranch = { title: trimmedLine, subBranches: [] };
-      currentSubBranch = null;
-      result.branches.push(currentBranch);
-    } else if (indentLevel === 6 && currentBranch) {
-      currentSubBranch = { title: trimmedLine, leaves: [] };
-      currentBranch.subBranches.push(currentSubBranch);
-    } else if (indentLevel === 8 && currentSubBranch) {
-      currentSubBranch.leaves.push(trimmedLine);
-    }
-  }
-  return result;
-}
-
 // Get all cards for navigation and recommendations
 const allCards = await getCollection("cards");
 const currentCardTags = card.data.tags;
@@ -222,6 +157,71 @@ ogImageUrl.searchParams.append("type", "card");
 ogImageUrl.searchParams.append("id", card.id);
 ogImageUrl.searchParams.append("th", card.data.template || "blackWhite");
 const origin = Astro.url.origin;
+
+function cleanMermaidText(text: string): string {
+  const lines: string[] = [];
+  for (const lineRaw of text.split("\n")) {
+    let line = lineRaw;
+    if (line.includes("root((")) {
+      const pattern = /(\(\([^()]*?)\s+\([^()]*?\)(.*?\)\))/;
+      line = line.replace(pattern, (_match, p1, p2) => `${p1}${p2}`);
+    } else {
+      const pattern = /\s*\([^()]*?\)\s*(?=:|\w|\s)/g;
+      line = line.replace(pattern, "");
+    }
+    lines.push(line);
+  }
+  let mmMarkdown = lines.join("\n");
+  if (!mmMarkdown.startsWith("mindmap")) {
+    mmMarkdown = `mindmap\n${mmMarkdown}`;
+  }
+  return mmMarkdown;
+}
+
+function parseMindmapToJson(text: string): {
+  root: string;
+  branches: Array<{
+    title: string;
+    subBranches: Array<{ title: string; leaves: string[] }>;
+  }>;
+} {
+  const lines = text.split("\n").filter((line) => line.trim());
+  const result: {
+    root: string;
+    branches: Array<{
+      title: string;
+      subBranches: Array<{ title: string; leaves: string[] }>;
+    }>;
+  } = { root: "", branches: [] };
+
+  let currentBranch: {
+    title: string;
+    subBranches: Array<{ title: string; leaves: string[] }>;
+  } | null = null;
+  let currentSubBranch: { title: string; leaves: string[] } | null = null;
+
+  for (const line of lines) {
+    const trimmedLine = line.trim();
+    if (trimmedLine === "mindmap") continue;
+    if (trimmedLine.includes("root((")) {
+      const rootMatch = trimmedLine.match(/root\(\(([^)]+)\)\)/);
+      if (rootMatch) result.root = rootMatch[1].trim();
+      continue;
+    }
+    const indentLevel = line.length - line.trimStart().length;
+    if (indentLevel === 4) {
+      currentBranch = { title: trimmedLine, subBranches: [] };
+      currentSubBranch = null;
+      result.branches.push(currentBranch);
+    } else if (indentLevel === 6 && currentBranch) {
+      currentSubBranch = { title: trimmedLine, leaves: [] };
+      currentBranch.subBranches.push(currentSubBranch);
+    } else if (indentLevel === 8 && currentSubBranch) {
+      currentSubBranch.leaves.push(trimmedLine);
+    }
+  }
+  return result;
+}
 ---
 
 <MainLayout
@@ -240,7 +240,7 @@ const origin = Astro.url.origin;
           prevCard && (
             <div class="xl:absolute xl:-left-65 xl:top-[66%] xl:-translate-y-1/2 xl:w-80 mx-auto xl:h-80 cursor-pointer transition-all duration-500 hover:scale-105 opacity-60 z-1 transform mb-8 xl:mb-0 xl:-rotate-6">
               <div class="text-center mb-2 opacity-100 xl:hidden block">
-                <span class="text-xs text-gray-700 bg-white/90 px-3 py-1 rounded-full inline-block min-w-[100px] backdrop-blur-sm shadow-sm">
+                <span class="text-xs text-gray-700 bg-white/90 px-3 py-1 rounded-full inline-block min-w-25 backdrop-blur-sm shadow-sm">
                   Previous Card
                 </span>
               </div>
@@ -271,7 +271,7 @@ const origin = Astro.url.origin;
           nextCard && (
             <div class="xl:absolute xl:-right-65 xl:top-[66%] xl:-translate-y-1/2 xl:w-80 sm:w-full mx-auto xl:h-80 cursor-pointer transition-all duration-500 hover:scale-105 opacity-60 z-1 transform mt-10 xl:mt-0 xl:rotate-6">
               <div class="text-center mb-2 opacity-100  xl:hidden block">
-                <span class="text-xs text-gray-700 bg-white/90 px-3 py-1 rounded-full inline-block min-w-[100px] backdrop-blur-sm shadow-sm">
+                <span class="text-xs text-gray-700 bg-white/90 px-3 py-1 rounded-full inline-block min-w-25 backdrop-blur-sm shadow-sm">
                   Next Card
                 </span>
               </div>

@@ -4,6 +4,7 @@ import {
   CLOUDFLARE_STREAM_PRIVATE_KEY,
 } from "astro:env/server";
 
+// Cloudflare Stream enforces a maximum of 24 hours
 const VIDEO_TOKEN_TTL_SECONDS = 8 * 60 * 60;
 
 function base64UrlEncode(data: ArrayBuffer | Uint8Array): string {
