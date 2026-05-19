@@ -1,7 +1,5 @@
 ---
-import { z } from "astro:content";
 import { cn } from "@/lib/utils";
-import type { SlideMetadata } from "@/schemas/slide";
 import BaseHead from "../components/BaseHead.astro";
 import Footer from "../components/Footer.astro";
 import Header from "../components/Header.astro";
@@ -22,7 +20,6 @@ interface Props {
   modifiedTime?: string;
   section?: string;
   tags?: string[];
-  revealTheme?: z.infer<typeof SlideMetadata>["theme"];
 }
 
 const {
@@ -38,7 +35,6 @@ const {
   modifiedTime,
   section,
   tags,
-  revealTheme,
 } = Astro.props;
 ---
 
@@ -58,14 +54,6 @@ const {
       section={section}
       tags={tags}
     />
-    {
-      revealTheme && (
-        <link
-          rel="stylesheet"
-          href={`https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.2.1/theme/${revealTheme}.css`}
-        />
-      )
-    }
   </head>
   <body>
     <div class="flex min-h-screen flex-col bg-teahouse-bg">
@@ -78,9 +66,5 @@ const {
       <Footer />
     </div>
     <Toaster client:load />
-    <script is:inline type="module">
-      import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
-      mermaid.initialize({ startOnLoad: true });
-    </script>
   </body>
 </html>

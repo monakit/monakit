@@ -1,5 +1,5 @@
-import { z } from "astro:content";
-import { SlideConfig } from "./slide";
+import { z } from "astro/zod";
+import { SlideConfig, SlideTheme } from "./slide";
 
 export {
   type ChapterRefType,
@@ -34,18 +34,22 @@ export const CourseMetadata = z.object({
   structure: z.array(StructureItem),
 });
 
-export const ChapterMetadata = z
-  .object({
-    title: z.string(),
-    description: z.string().optional(),
-  })
-  .merge(SlideConfig.partial());
+const EmbeddedSlideConfig = SlideConfig.extend({
+  theme: SlideTheme.optional(),
+}).partial();
 
-export const CourseSlideResource = z
-  .object({
-    title: z.string().optional(),
-  })
-  .merge(SlideConfig);
+// Chapter metadata (for individual chapter files)
+// When `theme` is present the chapter renders as a reveal.js slide.
+export const ChapterMetadata = z.object({
+  title: z.string(),
+  description: z.string().optional(),
+  ...EmbeddedSlideConfig.shape,
+});
+
+// Slide resource metadata (for courses/<id>/slides/*.md)
+export const CourseSlideResource = ChapterMetadata.partial({
+  description: true,
+});
 
 export type Course = z.infer<typeof CourseMetadata>;
 export type Chapter = z.infer<typeof ChapterMetadata>;

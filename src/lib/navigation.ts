@@ -14,7 +14,9 @@ export interface AdjacentContent {
 }
 
 export function getAdjacentContent(
-  items: CollectionEntry<"blogs" | "slides" | "cards" | "doodles">[],
+  items: CollectionEntry<
+    "blogs" | "slides" | "cards" | "doodles" | "courses"
+  >[],
   currentId: string,
 ): AdjacentContent {
   // Sort by publication date (newest first)

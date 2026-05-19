@@ -32,13 +32,7 @@ export default defineConfig({
     mdx({
       rehypePlugins: [rehypeSanitize(defaultSchema)],
     }),
-    react({
-      include: [
-        "**/components/image-viewer.tsx",
-        "**/components/slide/slide-viewer.tsx",
-        "**/components/course/CourseSidebar.tsx",
-      ],
-    }),
+    react(),
   ],
   vite: {
     plugins: [

@@ -188,7 +188,7 @@ const tagRows = Array.from({ length: 5 }, (_, i) =>
   function createTagNode(text: string, track: HTMLElement) {
     const div = document.createElement("div");
     div.className =
-      "tag px-4 py-2 rounded-full font-semibold text-white text-base flex-shrink-0 backdrop-blur-md bg-white/15";
+      "tag px-4 py-2 rounded-full font-semibold text-white text-base shrink-0 backdrop-blur-md bg-white/15";
     div.textContent = text;
 
     tagToTrackMap.set(div, track);

@@ -139,20 +139,6 @@ export const SLIDE_THEME_CONFIG: Record<string, SlideTheme> = {
   },
 };
 
-export function getThemeBackgroundAttrs(theme: string): string {
-  const config =
-    SLIDE_THEME_CONFIG[theme as keyof typeof SLIDE_THEME_CONFIG] ||
-    SLIDE_THEME_CONFIG.black;
-
-  // Check if background is a gradient or solid color
-  const bgAttr =
-    config.type === "gradient"
-      ? `data-background="${config.background}"`
-      : `data-background-color="${config.background}"`;
-
-  return `${bgAttr} class="theme-${theme}"`;
-}
-
 export function generateThemeStyles(theme: string, uniqueId: string): string {
   const config =
     SLIDE_THEME_CONFIG[theme as keyof typeof SLIDE_THEME_CONFIG] ||

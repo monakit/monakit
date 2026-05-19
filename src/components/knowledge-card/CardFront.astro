@@ -29,7 +29,7 @@ const { articleData, cardStyles = {}, cardTheme = {}, tags = [] } = Astro.props;
             articleData.keyPoints &&
               articleData.keyPoints.map((point: any, index: number) => (
                 <div class="flex items-start gap-3">
-                  <div class="card-number flex-shrink-0">{index + 1}</div>
+                  <div class="card-number shrink-0">{index + 1}</div>
                   <div class="card-key-point pt-1 leading-relaxed min-w-0 text-left">
                     {point}
                   </div>

@@ -1,14 +1,14 @@
 {
   "name": "monakit",
   "type": "module",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "files": [
     "src",
     "astro.config.mjs",
     "README.md"
   ],
   "peerDependencies": {
-    "astro": "^5.12.0"
+    "astro": "^6.3.5"
   },
   "scripts": {
     "dev": "astro dev",
@@ -24,44 +24,40 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "@astrojs/check": "^0.9.4",
-    "@astrojs/mdx": "^4.3.6",
-    "@astrojs/react": "^4.4.0",
-    "@astrojs/rss": "^4.0.12",
-    "@astrojs/vercel": "^8.2.8",
-    "@inox-tools/sitemap-ext": "^0.7.0",
+    "@astrojs/check": "^0.9.9",
+    "@astrojs/mdx": "^5.0.6",
+    "@astrojs/react": "^5.0.5",
+    "@astrojs/rss": "^4.0.18",
+    "@astrojs/vercel": "^10.0.7",
+    "@inox-tools/sitemap-ext": "^0.9.1",
     "@radix-ui/react-dialog": "^1.1.15",
-    "@vercel/og": "^0.8.5",
-    "animejs": "^4.1.4",
-    "astro": "^5.14.0",
+    "@vercel/og": "^0.11.1",
+    "animejs": "^4.4.1",
+    "astro": "^6.3.5",
     "astro-social-share": "^2.2.0",
     "clsx": "^2.1.1",
-    "js-base64": "^3.7.8",
-    "katex": "^0.16.27",
-    "lucide-react": "^0.544.0",
-    "pagefind": "^1.4.0",
-    "pako": "^2.1.0",
-    "react": "^19.1.1",
+    "lucide-react": "^1.16.0",
+    "mermaid": "^11.15.0",
+    "pagefind": "^1.5.2",
+    "react": "^19.2.6",
     "rehype-sanitize": "^6.0.0",
-    "reveal.js": "^5.2.1",
-    "reveal.js-mermaid-plugin": "^11.6.0",
+    "reveal.js": "^6.0.1",
     "sonner": "^2.0.7",
-    "tailwind-merge": "^3.3.1"
+    "tailwind-merge": "^3.6.0"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.2.4",
-    "@tailwindcss/vite": "^4.1.13",
+    "@biomejs/biome": "^2.4.15",
+    "@tailwindcss/vite": "^4.3.0",
     "@types/node": "^24.5.2",
-    "@types/pako": "^2.0.4",
-    "@types/react": "^19.1.13",
-    "@types/reveal.js": "^5.2.0",
+    "@types/react": "^19.2.14",
+    "@types/reveal.js": "^5.2.2",
     "gray-matter": "^4.0.3",
     "husky": "^9.1.7",
-    "react-dom": "^19.1.1",
-    "tailwindcss": "^4.1.13",
-    "tsx": "^4.20.5",
+    "react-dom": "^19.2.6",
+    "tailwindcss": "^4.3.0",
+    "tsx": "^4.22.2",
     "tw-animate-css": "^1.4.0",
-    "typescript": "^5.9.2",
-    "vite-bundle-analyzer": "^1.2.3"
+    "typescript": "^6.0.3",
+    "vite-bundle-analyzer": "^1.3.8"
   }
 }

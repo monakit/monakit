@@ -27,10 +27,10 @@ const selectedTags = tag ? [tag] : [];
     usedFor === "list" && (
       <a
         href={`/${type}`}
-        class={`inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-8 !px-3 ${
+        class={`inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-8 px-3! ${
           selectedTags.length === 0
             ? "text-primary border border-primary hover:text-primary hover:border-primary"
-            : "border border-slate-400 text-slate-400 hover:!text-primary hover:!border-primary"
+            : "border border-slate-400 text-slate-400 hover:text-primary! hover:border-primary!"
         }`}
       >
         All
@@ -41,10 +41,10 @@ const selectedTags = tag ? [tag] : [];
     allTags.map((tagItem) => (
       <a
         href={`/${type}?tag=${tagItem.tag}`}
-        class={`inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-8 !px-3 !no-underline ${
+        class={`inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-8 px-3! no-underline! ${
           selectedTags.includes(tagItem.tag)
             ? "text-primary border border-primary hover:text-primary hover:border-primary bg-black"
-            : "border border-slate-400 text-slate-400 hover:!text-primary hover:!border-primary bg-black"
+            : "border border-slate-400 text-slate-400 hover:text-primary! hover:border-primary! bg-black"
         }`}
       >
         {tagItem.tag}
@@ -78,7 +78,7 @@ const selectedTags = tag ? [tag] : [];
       // Add expand button
       const expandBtn = document.createElement("button");
       expandBtn.className =
-        "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-8 !px-3 border border-slate-400 text-slate-400 hover:text-primary hover:border-primary";
+        "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-8 px-3! border border-slate-400 text-slate-400 hover:text-primary hover:border-primary";
       expandBtn.textContent = "Expand More";
       expandBtn.onclick = () => {
         const isExpanded = expandBtn.textContent === "Collapse";

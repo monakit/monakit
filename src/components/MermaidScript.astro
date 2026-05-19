@@ -1,0 +1,25 @@
+---
+export interface Props {
+  enabled?: boolean;
+}
+const { enabled = false } = Astro.props;
+---
+
+{
+  enabled && (
+    <script>
+      const mermaid = (await import("mermaid")).default;
+
+      document
+        .querySelectorAll('pre[data-language="mermaid"]')
+        .forEach((pre) => {
+          pre.className = "mermaid";
+          pre.removeAttribute("style");
+          pre.textContent = pre.textContent;
+        });
+
+      mermaid.initialize({ startOnLoad: false });
+      await mermaid.run({ querySelector: ".mermaid" });
+    </script>
+  )
+}

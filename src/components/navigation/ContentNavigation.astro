@@ -33,11 +33,11 @@ if (!previous && !next) {
       previous ? (
         <a
           href={`/${contentType}/${previous.id}`}
-          class="block !no-underline flex-1 max-w-sm"
+          class="block no-underline! flex-1 max-w-sm"
         >
           <div class="flex items-start justify-start px-4 py-3 text-sm font-medium border rounded-md transition-colors border-slate-400 text-slate-400 hover:text-emerald-400 hover:border-emerald-400 h-full">
             <svg
-              class="w-5 h-5 mr-2 flex-shrink-0 mt-0.5"
+              class="w-5 h-5 mr-2 shrink-0 mt-0.5"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -51,7 +51,7 @@ if (!previous && !next) {
             </svg>
             <div class="min-w-0">
               <div class="text-xs opacity-70">Previous</div>
-              <div class="font-medium break-words">{previous.title}</div>
+              <div class="font-medium wrap-break-word">{previous.title}</div>
             </div>
           </div>
         </a>
@@ -64,15 +64,15 @@ if (!previous && !next) {
       next ? (
         <a
           href={`/${contentType}/${next.id}`}
-          class="block text-right !no-underline flex-1 max-w-sm"
+          class="block text-right no-underline! flex-1 max-w-sm"
         >
           <div class="flex items-start justify-end px-4 py-3 text-sm font-medium border rounded-md transition-colors border-slate-400 text-slate-400 hover:text-emerald-400 hover:border-emerald-400 h-full">
             <div class="min-w-0">
               <div class="text-xs opacity-70">Next</div>
-              <div class="font-medium break-words">{next.title}</div>
+              <div class="font-medium wrap-break-word">{next.title}</div>
             </div>
             <svg
-              class="w-5 h-5 ml-2 flex-shrink-0 mt-0.5"
+              class="w-5 h-5 ml-2 shrink-0 mt-0.5"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"

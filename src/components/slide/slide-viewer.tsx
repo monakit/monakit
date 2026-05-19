@@ -1,14 +1,36 @@
 import type React from "react";
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
+import type { RevealApi, RevealPluginFactory } from "reveal.js";
+import Reveal from "reveal.js";
+import Highlight from "reveal.js/plugin/highlight";
+import RevealMarkdown from "reveal.js/plugin/markdown";
+import Notes from "reveal.js/plugin/notes";
+import { hasMermaidContent } from "@/lib/utils";
 import {
   generateThemeStyles,
-  getThemeBackgroundAttrs,
+  SLIDE_THEME_CONFIG,
 } from "@/themes/slide-card-themes";
 
-// Import reveal.js CSS
-import "reveal.js/dist/reveal.css";
+import "reveal.js/reveal.css";
 import "reveal.js/plugin/highlight/monokai.css";
-import "katex/dist/katex.min.css";
+import "@/styles/slide-viewer.css";
+
+const themeCssLoaders = {
+  beige: () => import("reveal.js/theme/beige.css?url"),
+  black: () => import("reveal.js/theme/black.css?url"),
+  blood: () => import("reveal.js/theme/blood.css?url"),
+  dracula: () => import("reveal.js/theme/dracula.css?url"),
+  league: () => import("reveal.js/theme/league.css?url"),
+  moon: () => import("reveal.js/theme/moon.css?url"),
+  night: () => import("reveal.js/theme/night.css?url"),
+  serif: () => import("reveal.js/theme/serif.css?url"),
+  simple: () => import("reveal.js/theme/simple.css?url"),
+  sky: () => import("reveal.js/theme/sky.css?url"),
+  solarized: () => import("reveal.js/theme/solarized.css?url"),
+  white: () => import("reveal.js/theme/white.css?url"),
+} as const;
+
+type ThemeName = keyof typeof themeCssLoaders;
 
 interface SlideViewerProps {
   content: string;
@@ -19,6 +41,73 @@ interface SlideViewerProps {
   preview?: boolean;
 }
 
+function hasMathContent(content: string): boolean {
+  return /\$[^$]+\$|\$\$[\s\S]+?\$\$|\\\([\s\S]+?\\\)|\\\[[\s\S]+?\\\]/.test(
+    content,
+  );
+}
+
+async function renderMermaidDiagrams(deck: RevealApi) {
+  const deckEl = deck.getRevealElement();
+  if (!deckEl) return;
+
+  const mermaidEls = Array.from(
+    deckEl.querySelectorAll("pre code.mermaid, pre code.language-mermaid"),
+  );
+  if (mermaidEls.length === 0) return;
+
+  const mermaid = (await import("mermaid")).default;
+  mermaid.initialize({ startOnLoad: false });
+
+  await Promise.all(
+    mermaidEls.map(async (el, i) => {
+      const definition = el.textContent?.trim() ?? "";
+      if (!definition) return;
+
+      const id =
+        typeof crypto.randomUUID === "function"
+          ? `mermaid-${crypto.randomUUID().slice(0, 8)}-${i}`
+          : `mermaid-${Date.now()}-${i}`;
+
+      try {
+        const { svg } = await mermaid.render(id, definition);
+        const pre = el.closest("pre");
+        if (!pre) return;
+
+        const wrapper = document.createElement("div");
+        wrapper.className = "mermaid";
+        wrapper.innerHTML = svg;
+        pre.replaceWith(wrapper);
+      } catch (error) {
+        console.error("Mermaid render error:", error);
+      }
+    }),
+  );
+}
+
+function buildSlidesHTML(
+  content: string,
+  preview: boolean,
+  theme: string,
+): string {
+  const themeConfig =
+    SLIDE_THEME_CONFIG[theme as keyof typeof SLIDE_THEME_CONFIG] ||
+    SLIDE_THEME_CONFIG.black;
+
+  let sectionAttrs = 'data-markdown=""';
+  if (preview) {
+    if (themeConfig.type === "gradient") {
+      sectionAttrs += ` data-background="${themeConfig.background}"`;
+    } else {
+      sectionAttrs += ` data-background-color="${themeConfig.background}"`;
+    }
+    sectionAttrs += ` class="theme-${theme}"`;
+  }
+
+  const templateContent = content.replace(/<\/script>/gi, "<\\/script>");
+  return `<div class="slides"><section ${sectionAttrs}><script type="text/template">${templateContent}</script></section></div>`;
+}
+
 export const SlideViewer: React.FC<SlideViewerProps> = ({
   content,
   theme = "black",
@@ -27,169 +116,139 @@ export const SlideViewer: React.FC<SlideViewerProps> = ({
   progress = true,
   preview = false,
 }) => {
-  const deckRef = useRef<HTMLDivElement>(null);
-  const revealRef = useRef<Reveal.Api>(null);
-  const [isClient, setIsClient] = useState(false);
   const [themeLoaded, setThemeLoaded] = useState(false);
   const [stylesInjected, setStylesInjected] = useState(false);
   const uniqueId = useId();
+  const scopeId = uniqueId.replace(/:/g, "-");
+  const containerRef = useRef<HTMLDivElement>(null);
+  const deckRef = useRef<RevealApi | null>(null);
+
+  const needsMath = hasMathContent(content);
+  const needsMermaid = hasMermaidContent(content);
+  const [mathReady, setMathReady] = useState(!needsMath);
+  const mathPluginRef = useRef<RevealPluginFactory | null>(null);
 
   useEffect(() => {
-    setIsClient(true);
-  }, []);
+    if (!needsMath) {
+      setMathReady(true);
+      mathPluginRef.current = null;
+      return;
+    }
 
-  // Load theme CSS dynamically (shared across instances)
-  useEffect(() => {
-    if (!isClient) return;
-
-    const loadTheme = () => {
-      // Check if this theme is already loaded globally
-      const existingTheme = document.querySelector(
-        `link[data-reveal-theme="${theme}"]`,
-      );
-      if (existingTheme) {
-        setThemeLoaded(true);
-        return;
+    setMathReady(false);
+    let cancelled = false;
+    const load = async () => {
+      const mod = await import("reveal.js/plugin/math");
+      if (!cancelled) {
+        mathPluginRef.current = mod.default.KaTeX;
+        setMathReady(true);
       }
+    };
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [needsMath]);
 
-      // Add new theme link
+  useEffect(() => {
+    const normalizedTheme = theme in themeCssLoaders ? theme : "black";
+    setThemeLoaded(false);
+    const existingTheme = document.querySelector(
+      `link[data-reveal-theme="${normalizedTheme}"]`,
+    );
+    if (existingTheme) {
+      setThemeLoaded(true);
+      return;
+    }
+
+    let cancelled = false;
+    themeCssLoaders[normalizedTheme as ThemeName]().then(({ default: url }) => {
+      if (cancelled) return;
       const link = document.createElement("link");
       link.rel = "stylesheet";
-      link.href = `https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.2.1/theme/${theme}.css`;
-      link.setAttribute("data-reveal-theme", theme);
+      link.href = url;
+      link.setAttribute("data-reveal-theme", normalizedTheme);
       link.onload = () => setThemeLoaded(true);
       link.onerror = () => {
-        console.warn(`Failed to load theme: ${theme}`);
+        console.warn(`Failed to load reveal.js theme: ${normalizedTheme}`);
         setThemeLoaded(true);
       };
       document.head.appendChild(link);
+    });
+
+    return () => {
+      cancelled = true;
     };
+  }, [theme]);
 
-    loadTheme();
-  }, [theme, isClient]);
-
-  // Inject dynamic theme styles based on SLIDE_THEME_CONFIG
   useEffect(() => {
-    if (!isClient || !preview) return;
-
-    const styleId = `slide-theme-${uniqueId.replace(/:/g, "-")}`;
-
-    // Remove existing styles for this instance
-    const existingStyle = document.getElementById(styleId);
-    if (existingStyle) {
-      existingStyle.remove();
+    if (!preview) {
+      setStylesInjected(true);
+      return;
     }
 
-    // Create and inject new styles
+    setStylesInjected(false);
+    const styleId = `slide-theme-${scopeId}`;
+    document.getElementById(styleId)?.remove();
+
     const styleElement = document.createElement("style");
     styleElement.id = styleId;
     styleElement.textContent = generateThemeStyles(theme, uniqueId);
     document.head.appendChild(styleElement);
-
     setStylesInjected(true);
 
-    // Cleanup function
     return () => {
-      const styleToRemove = document.getElementById(styleId);
-      if (styleToRemove) {
-        styleToRemove.remove();
-      }
+      document.getElementById(styleId)?.remove();
     };
-  }, [theme, isClient, preview, uniqueId]);
+  }, [theme, preview, scopeId, uniqueId]);
+
+  const plugins = useMemo(() => {
+    const p: RevealPluginFactory[] = [RevealMarkdown, Highlight, Notes];
+    if (mathReady && mathPluginRef.current) p.push(mathPluginRef.current);
+    return p;
+  }, [mathReady]);
 
   useEffect(() => {
-    if (
-      !deckRef.current ||
-      !isClient ||
-      !themeLoaded ||
-      (preview && !stylesInjected)
-    )
+    const revealEl = containerRef.current;
+    if (!revealEl || !themeLoaded || !mathReady || (preview && !stylesInjected))
       return;
 
-    // Add a small random delay to prevent multiple instances from initializing simultaneously
-    const initDelay = Math.random() * 200 + 50; // 50-250ms random delay
+    revealEl.innerHTML = buildSlidesHTML(content, preview, theme);
 
-    const timer = setTimeout(async () => {
-      await initializeReveal();
-    }, initDelay);
+    const slideSize = preview
+      ? { width: "100%", height: "100%", margin: 0.02 }
+      : { width: 1280, height: 720, margin: 0.04 };
 
-    const initializeReveal = async () => {
-      try {
-        // Dynamically import reveal.js and plugins only on client side
-        const { default: Reveal } = await import("reveal.js");
-        const { default: Highlight } = await import(
-          "reveal.js/plugin/highlight/highlight.esm.js"
-        );
-        const { default: RevealMarkdown } = await import(
-          "reveal.js/plugin/markdown/markdown.esm.js"
-        );
-        const { default: Notes } = await import(
-          "reveal.js/plugin/notes/notes.esm.js"
-        );
-        const { default: RevealMermaid } = await import(
-          "reveal.js-mermaid-plugin"
-        );
-        const { default: RevealMath } = await import(
-          "reveal.js/plugin/math/math.esm.js"
-        );
+    const deck = new Reveal(revealEl, {
+      hash: false,
+      controls,
+      progress,
+      transition: transition as
+        | "none"
+        | "fade"
+        | "slide"
+        | "convex"
+        | "concave"
+        | "zoom",
+      plugins,
+      markdown: { smartypants: true },
+      embedded: true,
+      ...slideSize,
+    });
 
-        // Create HTML structure for reveal.js
-        const backgroundAttrs = preview ? getThemeBackgroundAttrs(theme) : "";
-        const slidesHtml = `\
-          <section data-markdown ${backgroundAttrs}>
-            <script type="text/template">
-              ${content}
-            </script>
-          </section>`;
-
-        // Set the HTML content
-        if (deckRef.current && !revealRef.current) {
-          // Add unique class to container for CSS isolation
-          deckRef.current.className = `reveal reveal-${uniqueId.replace(/:/g, "-")}`;
-          deckRef.current.innerHTML = `<div class="slides">${slidesHtml}</div>`;
-
-          // Initialize reveal.js in embedded mode
-          revealRef.current = new Reveal(deckRef.current, {
-            hash: false,
-            controls,
-            progress,
-            transition: transition as
-              | "none"
-              | "fade"
-              | "slide"
-              | "convex"
-              | "concave"
-              | "zoom",
-            plugins: [
-              RevealMarkdown,
-              Highlight,
-              Notes,
-              RevealMermaid,
-              RevealMath.KaTeX,
-            ],
-            markdown: { smartypants: true },
-            embedded: true,
-            width: "100%",
-            height: "100%",
-          });
-
-          await revealRef.current.initialize();
-        }
-      } catch (error) {
-        console.error(`Failed to initialize reveal.js for ${uniqueId}:`, error);
-      }
+    const onReady = () => {
+      if (needsMermaid) void renderMermaidDiagrams(deck);
     };
 
+    deckRef.current = deck;
+    deck.on("ready", onReady);
+    void deck.initialize();
+
     return () => {
-      clearTimeout(timer);
-      if (revealRef.current) {
-        try {
-          revealRef.current.destroy();
-        } catch (error) {
-          console.warn("Error destroying reveal.js instance:", error);
-        }
-        revealRef.current = null;
-      }
+      deck.off("ready", onReady);
+      deck.destroy();
+      deckRef.current = null;
+      revealEl.innerHTML = "";
     };
   }, [
     content,
@@ -198,32 +257,34 @@ export const SlideViewer: React.FC<SlideViewerProps> = ({
     controls,
     progress,
     preview,
-    isClient,
+    plugins,
     themeLoaded,
+    mathReady,
     stylesInjected,
-    uniqueId,
+    needsMermaid,
   ]);
+
+  if (!themeLoaded || !mathReady || (preview && !stylesInjected)) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "100%",
+          color: "#666",
+        }}
+      >
+        Loading...
+      </div>
+    );
+  }
 
   return (
     <div
-      className={`reveal reveal-container-${uniqueId.replace(/:/g, "-")}`}
-      ref={deckRef}
+      ref={containerRef}
+      className={`reveal mona-slide-viewer reveal-${scopeId}`}
       style={{ width: "100%", height: "100%" }}
-    >
-      {!isClient && (
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            height: "100%",
-            color: "#666",
-          }}
-        >
-          Loading...
-        </div>
-      )}
-      {/* Slides will be injected here */}
-    </div>
+    />
   );
 };

@@ -1,0 +1,136 @@
+.mona-slide-viewer.reveal .slides section {
+  box-sizing: border-box;
+  padding: clamp(1.25rem, 4.2vmin, 3.5rem);
+}
+
+.mona-slide-viewer.reveal .slides section.present {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(0.75rem, 2vmin, 1.5rem);
+}
+
+.mona-slide-viewer.reveal .slides section :is(h1, h2, h3, h4, h5, h6, p, li) {
+  text-wrap: balance;
+  text-shadow: none;
+}
+
+.mona-slide-viewer.reveal .slides section :is(p, li) {
+  line-height: 1.35;
+}
+
+.mona-slide-viewer.reveal .slides section .mermaid {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 0;
+  margin: 0 auto;
+  overflow: visible;
+  background: oklch(97% 0.014 254.604);
+}
+
+.mona-slide-viewer.reveal .slides section.present .mermaid {
+  flex: 1 1 auto;
+  max-height: 78%;
+}
+
+.mona-slide-viewer.reveal .slides section.present .mermaid svg {
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.mona-slide-viewer.reveal .slides section .mermaid,
+.mona-slide-viewer.reveal .slides section .mermaid span,
+.mona-slide-viewer.reveal .slides section .mermaid foreignObject,
+.mona-slide-viewer.reveal .slides section .mermaid foreignObject *,
+.mona-slide-viewer.reveal .slides section .mermaid .nodeLabel,
+.mona-slide-viewer.reveal .slides section .mermaid .edgeLabel {
+  color: #1f2937;
+}
+
+.mona-slide-viewer.reveal .slides section .mermaid text,
+.mona-slide-viewer.reveal .slides section .mermaid tspan {
+  fill: #1f2937;
+}
+
+.mona-slide-viewer.reveal .slides section .mermaid .mindmap-node span,
+.mona-slide-viewer.reveal
+  .slides
+  section
+  .mermaid
+  .mindmap-node
+  foreignObject
+  *,
+.mona-slide-viewer.reveal .slides section .mermaid .mindmap-node .nodeLabel {
+  color: #1f2937;
+}
+
+.mona-slide-viewer.reveal .slides section .mermaid .mindmap-node text,
+.mona-slide-viewer.reveal .slides section .mermaid .mindmap-node tspan {
+  fill: #1f2937;
+}
+
+.mona-slide-viewer.reveal
+  .slides
+  section
+  .mermaid
+  .mindmap-node.section-root
+  span,
+.mona-slide-viewer.reveal
+  .slides
+  section
+  .mermaid
+  .mindmap-node.section-root
+  foreignObject
+  *,
+.mona-slide-viewer.reveal
+  .slides
+  section
+  .mermaid
+  .mindmap-node:first-of-type
+  span,
+.mona-slide-viewer.reveal
+  .slides
+  section
+  .mermaid
+  .mindmap-node:first-of-type
+  foreignObject
+  *,
+.mona-slide-viewer.reveal
+  .slides
+  section
+  .mermaid
+  .mindmap-node:first-of-type
+  .nodeLabel {
+  color: #fff;
+}
+
+.mona-slide-viewer.reveal
+  .slides
+  section
+  .mermaid
+  .mindmap-node.section-root
+  text,
+.mona-slide-viewer.reveal
+  .slides
+  section
+  .mermaid
+  .mindmap-node.section-root
+  tspan,
+.mona-slide-viewer.reveal
+  .slides
+  section
+  .mermaid
+  .mindmap-node:first-of-type
+  text,
+.mona-slide-viewer.reveal
+  .slides
+  section
+  .mermaid
+  .mindmap-node:first-of-type
+  tspan {
+  fill: #fff;
+}

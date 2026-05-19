@@ -5,6 +5,7 @@ import CourseTOC from "@/components/course/CourseTOC.astro";
 import { VideoPlayer } from "@/components/course/VideoPlayer";
 import FormattedDate from "@/components/FormattedDate.astro";
 import { ImageViewer } from "@/components/image-viewer";
+import MermaidScript from "@/components/MermaidScript.astro";
 import ShareButtons from "@/components/ShareButtons.astro";
 import { SlideViewer } from "@/components/slide/slide-viewer";
 import TagFilter from "@/components/TagFilter.astro";
@@ -17,6 +18,7 @@ import {
   getChapterNavigation,
   getFirstChapter,
 } from "@/lib/course";
+import { hasMermaidContent } from "@/lib/utils";
 import "@/styles/article.css";
 import { getCollection, getEntry, render } from "astro:content";
 import { createElement } from "react";
@@ -106,6 +108,11 @@ const chapterComponents = {
       allowFullScreen: true,
     }),
 };
+
+const hasMermaid = hasMermaidContent;
+const enableMermaid = isCourseDetail
+  ? hasMermaid(course.body)
+  : !isSlideChapter && hasMermaid(chapter?.body);
 ---
 
 {
@@ -308,6 +315,7 @@ const chapterComponents = {
         </div>
       </div>
       <ImageViewer selector="article img" client:load />
+      <MermaidScript enabled={enableMermaid} />
     </MainLayout>
   )
 }

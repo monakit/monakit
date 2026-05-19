@@ -27,7 +27,7 @@ const slideContent = `
   class="group hover:shadow-lg transition-all duration-300 cursor-pointer w-full flex flex-col rounded-2xl border bg-card text-card-foreground shadow"
 >
   <div
-    class="w-full h-48 p-0 relative rounded-2xl overflow-hidden slide-preview"
+    class="w-full aspect-video p-0 relative rounded-2xl overflow-hidden slide-preview"
   >
     <SlideViewer
       content={slideContent}
@@ -36,7 +36,7 @@ const slideContent = `
       controls={false}
       progress={false}
       preview={true}
-      client:load
+      client:only="react"
     />
   </div>
 </div>

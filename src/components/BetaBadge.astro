@@ -10,7 +10,7 @@ interface Props {
 const {
   text = "preview",
   show,
-  className = "border-teahouse-primary rounded-full text-[10px] px-1.5 py-[1px]",
+  className = "border-teahouse-primary rounded-full text-[10px] px-1.5 py-px",
 } = Astro.props;
 
 const shouldShow = show ?? !isProd;

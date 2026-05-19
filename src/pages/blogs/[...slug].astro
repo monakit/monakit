@@ -3,12 +3,14 @@ import { getCollection, getEntry, render } from "astro:content";
 import sitemap from "sitemap-ext:config";
 import FormattedDate from "@/components/FormattedDate.astro";
 import { ImageViewer } from "@/components/image-viewer";
+import MermaidScript from "@/components/MermaidScript.astro";
 import ContentNavigation from "@/components/navigation/ContentNavigation.astro";
 import ShareButtons from "@/components/ShareButtons.astro";
 import TagFilter from "@/components/TagFilter.astro";
 import { SITE_TITLE } from "@/consts";
 import MainLayout from "@/layouts/MainLayout.astro";
 import { getAdjacentContent } from "@/lib/navigation";
+import { hasMermaidContent } from "@/lib/utils";
 import "@/styles/article.css";
 
 // add all blog posts to sitemap
@@ -43,6 +45,7 @@ const allBlogs = await getCollection("blogs");
 const adjacentContent = getAdjacentContent(allBlogs, post.id);
 const tags = post.data.tags || [];
 const pageTitle = `${post.data.title} | ${SITE_TITLE}`;
+const hasMermaid = hasMermaidContent(post.body ?? "");
 ---
 
 <MainLayout
@@ -105,4 +108,5 @@ const pageTitle = `${post.data.title} | ${SITE_TITLE}`;
     </div>
   </article>
   <ImageViewer selector="article img" client:load />
+  <MermaidScript enabled={hasMermaid} />
 </MainLayout>

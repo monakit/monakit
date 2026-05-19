@@ -1,5 +1,6 @@
 ---
 import { getCollection, getEntry } from "astro:content";
+import { deflateSync } from "node:zlib";
 import sitemap from "sitemap-ext:config";
 import CardCover from "@/components/knowledge-card/CardCover.astro";
 import KnowledgeCard from "@/components/knowledge-card/KnowledgeCard.astro";
@@ -7,7 +8,6 @@ import { SITE_TITLE } from "@/consts";
 import {
   createCardStyles,
   getTemplateKey,
-  loadPako,
   parseCardContent,
 } from "@/lib/utils";
 import { KNOWLEDGE_CARD_THEME } from "@/themes/knowledge-card-themes";
@@ -54,7 +54,86 @@ let pakoContent:
     }
   | undefined;
 if (cardParsedData?.mermaidMarkdown) {
-  pakoContent = await loadPako(cardParsedData.mermaidMarkdown);
+  try {
+    const cleanedText = cleanMermaidText(cardParsedData.mermaidMarkdown);
+    const structureText = parseMindmapToJson(cleanedText);
+    const compressed = deflateSync(
+      Buffer.from(JSON.stringify({ code: cleanedText })),
+      { level: 9 },
+    );
+    pakoContent = {
+      pakoValue: Buffer.from(compressed).toString("base64url"),
+      structureText,
+      cleanedText,
+    };
+  } catch {
+    pakoContent = undefined;
+  }
+}
+
+function cleanMermaidText(text: string): string {
+  const lines: string[] = [];
+  for (const lineRaw of text.split("\n")) {
+    let line = lineRaw;
+    if (line.includes("root((")) {
+      const pattern = /(\(\([^()]*?)\s+\([^()]*?\)(.*?\)\))/;
+      line = line.replace(pattern, (_match, p1, p2) => `${p1}${p2}`);
+    } else {
+      const pattern = /\s*\([^()]*?\)\s*(?=:|\w|\s)/g;
+      line = line.replace(pattern, "");
+    }
+    lines.push(line);
+  }
+  let mmMarkdown = lines.join("\n");
+  if (!mmMarkdown.startsWith("mindmap")) {
+    mmMarkdown = `mindmap\n${mmMarkdown}`;
+  }
+  return mmMarkdown;
+}
+
+function parseMindmapToJson(text: string): {
+  root: string;
+  branches: Array<{
+    title: string;
+    subBranches: Array<{ title: string; leaves: string[] }>;
+  }>;
+} {
+  const lines = text.split("\n").filter((line) => line.trim());
+  const result: {
+    root: string;
+    branches: Array<{
+      title: string;
+      subBranches: Array<{ title: string; leaves: string[] }>;
+    }>;
+  } = { root: "", branches: [] };
+
+  let currentBranch: {
+    title: string;
+    subBranches: Array<{ title: string; leaves: string[] }>;
+  } | null = null;
+  let currentSubBranch: { title: string; leaves: string[] } | null = null;
+
+  for (const line of lines) {
+    const trimmedLine = line.trim();
+    if (trimmedLine === "mindmap") continue;
+    if (trimmedLine.includes("root((")) {
+      const rootMatch = trimmedLine.match(/root\(\(([^)]+)\)\)/);
+      if (rootMatch) result.root = rootMatch[1].trim();
+      continue;
+    }
+    const indentLevel = line.length - line.trimStart().length;
+    if (indentLevel === 4) {
+      currentBranch = { title: trimmedLine, subBranches: [] };
+      currentSubBranch = null;
+      result.branches.push(currentBranch);
+    } else if (indentLevel === 6 && currentBranch) {
+      currentSubBranch = { title: trimmedLine, leaves: [] };
+      currentBranch.subBranches.push(currentSubBranch);
+    } else if (indentLevel === 8 && currentSubBranch) {
+      currentSubBranch.leaves.push(trimmedLine);
+    }
+  }
+  return result;
 }
 
 // Get all cards for navigation and recommendations
